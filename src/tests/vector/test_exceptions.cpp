@@ -7,7 +7,7 @@ TEST(ExceptionVector, Subtest_1) {
   own_vector.push_back(20);
   bool flag = false;
   try {
-    std:: cout << own_vector[3];
+    std::cout << own_vector[3];
   } catch (...) {
     flag = true;
   }

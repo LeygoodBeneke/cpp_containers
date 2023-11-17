@@ -4,58 +4,82 @@
 #define DEFAULT_CAPACITY 1
 
 #include <memory>
+#include <initializer_list>
 
 namespace s21 {
 
 template <class T, class Allocator = std::allocator<T>>
 class vector {
  public:
-  vector()
-      : _allocator(std::allocator<T>()), _size(0), _capacity(DEFAULT_CAPACITY) {
-    _data = _allocator.allocate(_capacity);
-  }
+  using value_type = T;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using iterator = T*;
+  using const_iterator = const T*;
+  using size_type = std::size_t;
 
-  vector(unsigned size) : _size(size), _capacity(2 * size) {
-    _data = _allocator.allocate(_capacity);
-  }
+  vector();
+  vector(unsigned size);
+  vector(vector&& victor) noexcept;  // +-
+  vector(const vector& victor);            // +-
+  vector(std::initializer_list<value_type> const &items); // -
+  ~vector();  // +
 
-  vector(vector&& victor) noexcept; // +-
-  vector(vector& victor); // +-
+  inline size_type size() const noexcept { return _size; }          // +
+  size_type max_size(); // -
+  void reserve(size_type size); // -
+  inline size_type capacity() const noexcept { return _capacity; }  // +
+  inline bool empty() const noexcept { return _size == 0; }         // +
+  void clear(); // -
 
-  ~vector() {  // +
-    for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
-    _allocator.deallocate(_data, _capacity);
-  }
+  inline reference back();       // +
+  inline const_reference back() const;  // +
 
-  inline unsigned size() const noexcept { return _size; }          // +
-  inline unsigned capacity() const noexcept { return _capacity; }  // +
-  inline bool empty() const noexcept { return _size == 0; }        // +
+  inline reference front();       // +
+  inline const_reference front() const;  // +
 
-  inline T back();         // +
-  inline T& back() const;  // +
+  void push_back(const_reference value);  // +
+  void push_back(T&& value);              // +
+  void pop_back(); // +
+  void swap(vector& other); // -
 
-  inline T front();         // +
-  inline T& front() const;  // +
+  inline iterator begin() const noexcept { return _data; }        // +
+  inline iterator end() const noexcept { return _data + _size; }  // +
+  inline T* data() { return _data; }; // +
 
-  void push_back(const T& value);  // +
-  void push_back(T&& value);       // +
+  void shrink_to_fit() noexcept;  // +
 
-  inline void pop_back();  // +
-
-  inline T* begin() const noexcept { return _data; }        // +
-  inline T* end() const noexcept { return _data + _size; }  // +
-                                                            
-  void shrink_to_fit() noexcept; // +
-
-  T& operator[](unsigned int i) const;  // +
-  T operator[](unsigned int i);         // +
+  reference operator[](size_type i) const;  // +
+  value_type operator[](size_type i);       // +
+  vector& operator=(vector &&v) noexcept; // -
+  vector& operator=(const vector &v); // -
+  vector& operator=(std::initializer_list<value_type> ilist); // -
 
  private:
   Allocator _allocator;
-  T* _data;
-  unsigned _size;
+  iterator _data;
+  size_type _size;
   unsigned _capacity;
 };
+
+template <class T, class Allocator>
+vector<T, Allocator>::vector()
+    : _allocator(std::allocator<value_type>()),
+      _size(0),
+      _capacity(DEFAULT_CAPACITY) {
+  _data = _allocator.allocate(_capacity);
+}
+
+template <class T, class Allocator>
+vector<T, Allocator>::vector(unsigned size) : _size(size), _capacity(2 * size) {
+  _data = _allocator.allocate(_capacity);
+}
+
+template <class T, class Allocator>
+vector<T, Allocator>::~vector() {
+  for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
+  _allocator.deallocate(_data, _capacity);
+}
 
 template <class T, class Allocator>
 vector<T, Allocator>::vector(vector&& victor) noexcept {
@@ -69,11 +93,11 @@ vector<T, Allocator>::vector(vector&& victor) noexcept {
 
   victor._data = nullptr;
   victor._size = 0;
-  victor._capacity = 1;
+  victor._capacity = 0;
 }
 
 template <class T, class Allocator>
-vector<T, Allocator>::vector(vector& victor) {
+vector<T, Allocator>::vector(const vector& victor) {
   for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
   _allocator.deallocate(_data, _capacity);
   _allocator = victor._allocator;
@@ -85,25 +109,25 @@ vector<T, Allocator>::vector(vector& victor) {
 }
 
 template <class T, class Allocator>
-T vector<T, Allocator>::back() {
+T& vector<T, Allocator>::back() {
   if (_size == 0) throw "size is equal to zero";
   return _data[_size - 1];
 }
 
 template <class T, class Allocator>
-T& vector<T, Allocator>::back() const {
+const T& vector<T, Allocator>::back() const {
   if (_size == 0) throw "size is equal to zero";
   return _data[_size - 1];
 }
 
 template <class T, class Allocator>
-T vector<T, Allocator>::front() {
+T& vector<T, Allocator>::front() {
   if (_size == 0) throw "size is equal to zero";
   return *_data;
 }
 
 template <class T, class Allocator>
-T& vector<T, Allocator>::front() const {
+const T& vector<T, Allocator>::front() const {
   if (_size == 0) throw "size is equal to zero";
   return *_data;
 }
@@ -118,7 +142,7 @@ inline void vector<T, Allocator>::pop_back() {
 template <class T, class Allocator>
 void vector<T, Allocator>::push_back(const T& value) {
   if (_size >= _capacity) {
-      T* new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
+    T* new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
 
     for (size_t i = 0; i < _size; i++) new_data[i] = _data[i];
     _allocator.deallocate(_data, _capacity);
@@ -133,7 +157,7 @@ void vector<T, Allocator>::push_back(const T& value) {
 template <class T, class Allocator>
 void vector<T, Allocator>::push_back(T&& value) {
   if (_size >= _capacity) {
-      T* new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
+    T* new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
 
     for (size_t i = 0; i < _size; i++) new_data[i] = _data[i];
     _allocator.deallocate(_data, _capacity);
@@ -146,19 +170,19 @@ void vector<T, Allocator>::push_back(T&& value) {
 }
 
 template <class T, class Allocator>
-void vector<T, Allocator>:: shrink_to_fit() noexcept {
-    _allocator.deallocate(_data + _size, _capacity - _size);
-    _capacity = _size;
+void vector<T, Allocator>::shrink_to_fit() noexcept {
+  _allocator.deallocate(_data + _size, _capacity - _size);
+  _capacity = _size;
 }
 
 template <class T, class Allocator>
-T& s21::vector<T, Allocator>::operator[](unsigned int i) const {
+T& s21::vector<T, Allocator>::operator[](size_type i) const {
   if (i >= _size) throw "Invalid vector index";
   return _data[i];
 }
 
 template <class T, class Allocator>
-T s21::vector<T, Allocator>::operator[](unsigned int i) {
+T s21::vector<T, Allocator>::operator[](size_type i) {
   if (i >= _size) throw "Invalid vector index";
   return _data[i];
 }

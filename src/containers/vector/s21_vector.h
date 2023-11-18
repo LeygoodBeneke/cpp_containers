@@ -20,14 +20,14 @@ class vector {
 
   vector();
   vector(unsigned size);
-  vector(vector&& v) noexcept;                             // +
-  vector(const vector& v);                                 // +
-  vector(std::initializer_list<value_type> const& items);  // +
-  ~vector();                                               // +
+  vector(vector&& v) noexcept;                       // +
+  vector(const vector& v);                           // +
+  vector(std::initializer_list<value_type>& items);  // +
+  ~vector();                                         // +
 
   inline size_type size() const noexcept { return _size; }             // +
   inline size_type max_size() const { return _allocator.max_size(); }  // +
-  void reserve(size_type size);                                        // -
+  void reserve(size_type size);                                        // +
   inline size_type capacity() const noexcept { return _capacity; }     // +
   inline bool empty() const noexcept { return _size == 0; }            // +
   void clear() noexcept { _size = 0; }                                 // +
@@ -51,9 +51,9 @@ class vector {
 
   reference operator[](size_type i) const;                     // +
   value_type operator[](size_type i);                          // +
-  vector& operator=(vector&& v) noexcept;                      // -
-  vector& operator=(const vector& v);                          // -
-  vector& operator=(std::initializer_list<value_type> ilist);  // -
+  vector& operator=(vector&& v) noexcept;                      // +
+  vector& operator=(const vector& v);                          // +
+  vector& operator=(std::initializer_list<value_type> ilist);  // +
 
  private:
   Allocator _allocator;
@@ -82,6 +82,25 @@ vector<T, Allocator>::~vector() {
 }
 
 template <class T, class Allocator>
+void vector<T, Allocator>::reserve(size_type size) {
+  if (size <= max_size()) throw "Cant allocate memory";
+  if (size <= _size) return;
+
+  vector<T> new_data(size);
+
+  for (int i = 0; i < _size; i++) new_data[i] = _data[i];
+
+  for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
+  _allocator.deallocate(_data, _capacity);
+
+  _data = _allocator.allocate(new_data.capacity());
+  for (int i = 0; i < size; i++) _data[i] = new_data[i];
+
+  _size = size;
+  _capacity = size;
+}
+
+template <class T, class Allocator>
 vector<T, Allocator>::vector(vector&& v) noexcept {
   for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
   _allocator.deallocate(_data, _capacity);
@@ -107,7 +126,7 @@ vector<T, Allocator>::vector(const vector& v) {
 }
 
 template <class T, class Allocator>
-vector<T, Allocator>::vector(std::initializer_list<value_type> const& items)
+vector<T, Allocator>::vector(std::initializer_list<value_type>& items)
     : _size(items.size()), _capacity(items.size()) {
   _data = _allocator.allocate(_capacity);
   size_type idx = 0;
@@ -234,6 +253,14 @@ vector<T, Allocator>& vector<T, Allocator>::operator=(const vector& v) {
 template <class T, class Allocator>
 vector<T, Allocator>& vector<T, Allocator>::operator=(
     std::initializer_list<value_type> ilist) {
+  _size = ilist.size();
+  _capacity = _size;
+  _data = _allocator.allocate(_capacity);
+  size_type idx = 0;
+  for (T item : ilist) {
+    _data[idx] = ilist;
+    idx++;
+  }
   return *this;
 }
 

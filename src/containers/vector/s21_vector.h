@@ -3,8 +3,8 @@
 
 #define DEFAULT_CAPACITY 1
 
-#include <memory>
 #include <initializer_list>
+#include <memory>
 
 namespace s21 {
 
@@ -20,40 +20,40 @@ class vector {
 
   vector();
   vector(unsigned size);
-  vector(vector&& victor) noexcept;  // +-
-  vector(const vector& victor);            // +-
-  vector(std::initializer_list<value_type> const &items); // -
-  ~vector();  // +
+  vector(vector&& v) noexcept;                             // +
+  vector(const vector& v);                                 // +
+  vector(std::initializer_list<value_type> const& items);  // +
+  ~vector();                                               // +
 
-  inline size_type size() const noexcept { return _size; }          // +
-  size_type max_size(); // -
-  void reserve(size_type size); // -
-  inline size_type capacity() const noexcept { return _capacity; }  // +
-  inline bool empty() const noexcept { return _size == 0; }         // +
-  void clear(); // -
+  inline size_type size() const noexcept { return _size; }             // +
+  inline size_type max_size() const { return _allocator.max_size(); }  // +
+  void reserve(size_type size);                                        // -
+  inline size_type capacity() const noexcept { return _capacity; }     // +
+  inline bool empty() const noexcept { return _size == 0; }            // +
+  void clear() noexcept { _size = 0; }                                 // +
 
-  inline reference back();       // +
+  inline reference back();              // +
   inline const_reference back() const;  // +
 
-  inline reference front();       // +
+  inline reference front();              // +
   inline const_reference front() const;  // +
 
   void push_back(const_reference value);  // +
   void push_back(T&& value);              // +
-  void pop_back(); // +
-  void swap(vector& other); // -
+  void pop_back();                        // +
+  void swap(vector& other) noexcept;      // +
 
   inline iterator begin() const noexcept { return _data; }        // +
   inline iterator end() const noexcept { return _data + _size; }  // +
-  inline T* data() { return _data; }; // +
+  inline T* data() { return _data; };                             // +
 
   void shrink_to_fit() noexcept;  // +
 
-  reference operator[](size_type i) const;  // +
-  value_type operator[](size_type i);       // +
-  vector& operator=(vector &&v) noexcept; // -
-  vector& operator=(const vector &v); // -
-  vector& operator=(std::initializer_list<value_type> ilist); // -
+  reference operator[](size_type i) const;                     // +
+  value_type operator[](size_type i);                          // +
+  vector& operator=(vector&& v) noexcept;                      // -
+  vector& operator=(const vector& v);                          // -
+  vector& operator=(std::initializer_list<value_type> ilist);  // -
 
  private:
   Allocator _allocator;
@@ -71,7 +71,7 @@ vector<T, Allocator>::vector()
 }
 
 template <class T, class Allocator>
-vector<T, Allocator>::vector(unsigned size) : _size(size), _capacity(2 * size) {
+vector<T, Allocator>::vector(unsigned size) : _size(size), _capacity(size) {
   _data = _allocator.allocate(_capacity);
 }
 
@@ -82,30 +82,39 @@ vector<T, Allocator>::~vector() {
 }
 
 template <class T, class Allocator>
-vector<T, Allocator>::vector(vector&& victor) noexcept {
+vector<T, Allocator>::vector(vector&& v) noexcept {
   for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
   _allocator.deallocate(_data, _capacity);
 
-  _allocator = victor._allocator;
-  _data = victor._data;
-  _size = victor._size;
-  _capacity = victor._capacity;
+  _data = v._data;
+  _size = v._size;
+  _capacity = v._capacity;
 
-  victor._data = nullptr;
-  victor._size = 0;
-  victor._capacity = 0;
+  v._data = nullptr;
+  v._size = 0;
+  v._capacity = 0;
 }
 
 template <class T, class Allocator>
-vector<T, Allocator>::vector(const vector& victor) {
+vector<T, Allocator>::vector(const vector& v) {
   for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
   _allocator.deallocate(_data, _capacity);
-  _allocator = victor._allocator;
-  _size = victor._size;
-  _capacity = victor._capacity;
+  _size = v._size;
+  _capacity = v._capacity;
 
   _data = _allocator.allocate(_capacity);
-  for (size_t i = 0; i < _size; i++) _data[i] = victor._data[i];
+  for (size_t i = 0; i < _size; i++) _data[i] = v._data[i];
+}
+
+template <class T, class Allocator>
+vector<T, Allocator>::vector(std::initializer_list<value_type> const& items)
+    : _size(items.size()), _capacity(items.size()) {
+  _data = _allocator.allocate(_capacity);
+  size_type idx = 0;
+  for (T item : items) {
+    _data[idx] = items;
+    idx++;
+  }
 }
 
 template <class T, class Allocator>
@@ -137,6 +146,13 @@ inline void vector<T, Allocator>::pop_back() {
   if (_size == 0) throw "size is equal to zero";
   _allocator.destroy(_data + _size);
   _size--;
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::swap(vector& other) noexcept {
+  std::swap(_data, other._data);
+  std::swap(_size, other._size);
+  std::swap(_capacity, other._capacity);
 }
 
 template <class T, class Allocator>
@@ -185,6 +201,40 @@ template <class T, class Allocator>
 T s21::vector<T, Allocator>::operator[](size_type i) {
   if (i >= _size) throw "Invalid vector index";
   return _data[i];
+}
+
+template <class T, class Allocator>
+vector<T, Allocator>& vector<T, Allocator>::operator=(vector&& v) noexcept {
+  for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
+  _allocator.deallocate(_data, _capacity);
+
+  _data = v._data;
+  _size = v._size;
+  _capacity = v._capacity;
+
+  v._data = nullptr;
+  v._size = 0;
+  v._capacity = 0;
+  return *this;
+}
+
+template <class T, class Allocator>
+vector<T, Allocator>& vector<T, Allocator>::operator=(const vector& v) {
+  for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
+  _allocator.deallocate(_data, _capacity);
+  _size = v._size;
+  _capacity = v._capacity;
+
+  _data = _allocator.allocate(_capacity);
+  for (size_t i = 0; i < _size; i++) _data[i] = v._data[i];
+
+  return *this;
+}
+
+template <class T, class Allocator>
+vector<T, Allocator>& vector<T, Allocator>::operator=(
+    std::initializer_list<value_type> ilist) {
+  return *this;
 }
 
 }  // namespace s21

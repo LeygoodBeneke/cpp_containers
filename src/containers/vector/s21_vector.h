@@ -42,6 +42,8 @@ class vector {
   void push_back(T&& value);              // +
   void pop_back();                        // +
   void swap(vector& other) noexcept;      // +
+  iterator insert(iterator pos, const_reference value);
+  void erase(iterator pos);
 
   inline iterator begin() const noexcept { return _data; }        // +
   inline iterator end() const noexcept { return _data + _size; }  // +
@@ -175,9 +177,25 @@ void vector<T, Allocator>::swap(vector& other) noexcept {
 }
 
 template <class T, class Allocator>
-void vector<T, Allocator>::push_back(const T& value) {
+T* vector<T, Allocator>::insert(iterator pos, const_reference value) {
+  reserve(_size + 1);
+  for (iterator end = _data + _size - 1; end > pos; end--) {
+    *end = *(end - 1);
+  }
+  *pos = value;
+  return pos;
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::erase(iterator pos) {
+  for (T* it = pos; it < end(); it++) *it = *(it + 1);
+  _size--;
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::push_back(const_reference value) {
   if (_size >= _capacity) {
-    T* new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
+    iterator new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
 
     for (size_t i = 0; i < _size; i++) new_data[i] = _data[i];
     _allocator.deallocate(_data, _capacity);
@@ -192,7 +210,7 @@ void vector<T, Allocator>::push_back(const T& value) {
 template <class T, class Allocator>
 void vector<T, Allocator>::push_back(T&& value) {
   if (_size >= _capacity) {
-    T* new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
+    iterator new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
 
     for (size_t i = 0; i < _size; i++) new_data[i] = _data[i];
     _allocator.deallocate(_data, _capacity);

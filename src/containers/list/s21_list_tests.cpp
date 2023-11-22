@@ -119,6 +119,31 @@ s21::list<int>::ListConstIterator it2 = --it;
 EXPECT_EQ(*it2, 1);
 }
 
+TEST(ConstIterator, Postfix) {
+s21::list<int> l{1, 2, 3, 4};
+s21::list<int>::ListConstIterator it = l.begin();
+EXPECT_EQ(*it, 1);
+s21::list<int>::ListConstIterator it2 = it++;
+EXPECT_EQ(*it2, 1);
+EXPECT_EQ(*it, 2);
+it--;
+EXPECT_EQ(*it, 1);
+}
+
+TEST(ConstIterator, Eq) {
+s21::list<int> l{1, 2, 3, 4};
+s21::list<int>::ListConstIterator it = l.begin();
+s21::list<int>::ListConstIterator it2 = l.begin();
+EXPECT_TRUE(it == it2);
+}
+
+TEST(ConstIterator, NonEq) {
+s21::list<int> l{1, 2, 3, 4};
+s21::list<int>::ListConstIterator it = l.begin();
+s21::list<int>::ListConstIterator it2 = l.end();
+EXPECT_TRUE(it != it2);
+}
+
 TEST(Methods, Clear) {
   s21::list<int> l(5);
   l.clear();

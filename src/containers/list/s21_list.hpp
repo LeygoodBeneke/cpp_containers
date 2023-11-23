@@ -165,26 +165,47 @@ class list {
 
   explicit list(size_type n, const allocator &alloc = allocator())
       : alloc_(alloc), sz_(0), end_(create_end()) {
-    insert(end(), n);
+    try {
+      insert(end(), n);
+    } catch (std::bad_alloc &t) {
+      std::cerr << t.what() << std::endl;
+      clear();
+      throw;
+    }
   }
 
   template <class InputIt>
   list(InputIt first, InputIt last, const allocator &alloc = allocator())
       : alloc_(alloc), sz_(0), end_(create_end()) {
-    for (; first != last; ++first) push_back(*first);
+    try {
+      for (; first != last; ++first) push_back(*first);
+    } catch (std::bad_alloc &t) {
+      std::cerr << t.what() << std::endl;
+      clear();
+      throw;
+    }
   }
 
   list(std::initializer_list<value_type> const &items,
        const allocator &alloc = allocator())
       : alloc_(alloc), sz_(0), end_(create_end()) {
-    for (const_reference item : items) {
-      push_back(item);
+    try {
+      for (const_reference item : items) push_back(item);
+    } catch (std::bad_alloc &t) {
+      std::cerr << t.what() << std::endl;
+      clear();
+      throw;
     }
   }
 
   list(const list &l) : alloc_(l.alloc_), sz_(0), end_(create_end()) {
     for (const_iterator it = l.begin(); it != l.end(); ++it) {
-      push_back(*it);
+      try {
+        push_back(*it);
+      } catch (std::bad_alloc &t) {
+        clear();
+        throw;
+      }
     }
   }
 
@@ -288,7 +309,7 @@ class list {
         } else
           ++it;
         while (jt != other.end()) {
-          push_back(std::move(*jt));
+          push_back(*jt);
           ++jt;
         }
         other.clear();

@@ -1,13 +1,6 @@
 #ifndef S21_STACK_HPP
 #define S21_STACK_HPP
 
-// #include <cstddef>
-// #include <initializer_list>
-// #include <iostream>
-// #include <iterator>
-// #include <limits>
-// #include <memory>
-
 #include "../list/s21_list.hpp"
 
 namespace s21 {

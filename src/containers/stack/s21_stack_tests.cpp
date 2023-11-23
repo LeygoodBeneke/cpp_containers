@@ -89,7 +89,6 @@ TEST(Methods, Swap) {
   EXPECT_TRUE(s2.size() == 4);
 }
 
-
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
 

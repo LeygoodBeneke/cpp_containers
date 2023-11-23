@@ -18,7 +18,7 @@ class stack {
   using const_reference = const value_type &;
   using size_type = std::size_t;
 
-  public:
+ public:
   stack() : obj_(Container()) {}
   stack(std::initializer_list<value_type> const &items)
       : obj_(Container(items)) {}

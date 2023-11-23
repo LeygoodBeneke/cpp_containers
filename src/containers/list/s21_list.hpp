@@ -68,10 +68,10 @@ class list {
     }
 
     ListIterator operator++(int) noexcept {
-    ListIterator tmp(*this);
-    ++(*this);
-    return tmp;
-}
+      ListIterator tmp(*this);
+      ++(*this);
+      return tmp;
+    }
 
     ListIterator operator--(int) noexcept {
       ListIterator tmp(*this);
@@ -320,16 +320,16 @@ class list {
   void unique() {
     iterator it = begin();
     while (it != end()) {
-    value_type val = *it;
-    iterator next = it;
-    ++next;
-    if (next != end() && *next == val) {
-      erase(next);
-    } else {
-      ++it;
+      value_type val = *it;
+      iterator next = it;
+      ++next;
+      if (next != end() && *next == val) {
+        erase(next);
+      } else {
+        ++it;
+      }
     }
   }
-}
 
   void sort() {
     if (sz_) end_->next_ = merge_sort(end_->next_);

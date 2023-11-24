@@ -12,11 +12,32 @@ class queue {
   using size_type = std::size_t;
   using container_type = Container;
 
-  public:
-  queue() : container_(container_type()) {}
-  queue(std::initializer_list<value_type> const &items) : container_(container_type(items)) {}
-  queue(const queue &q) : container_(q.container_) {}
-  queue(queue &&q) : container_(q.container_)  {}
+ public:
+  queue() try : container_(container_type()) {
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    throw;
+  }
+
+  queue(std::initializer_list<value_type> const &items) try
+      : container_(container_type(items)) {
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    throw;
+  }
+
+  queue(const queue &q) try : container_(q.container_) {
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    throw;
+  }
+
+  queue(queue &&q) try : container_(q.container_) {
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    throw;
+  }
+
   ~queue() {}
 
   queue &operator=(queue &&q) {
@@ -32,16 +53,24 @@ class queue {
   bool empty() const { return container_.empty(); }
   size_type size() const { return container_.size(); }
 
-  void push(const_reference value) { container_.push_back(value); }
+  void push(const_reference value) {
+    try {
+      container_.push_back(value);
+    } catch (std::bad_alloc &t) {
+      std::cerr << t.what() << std::endl;
+      throw;
+    }
+  }
+
   void pop() { container_.pop_front(); }
-  void swap(queue &other) { container_.swap(other.container_); }
+  void swap(queue &other) noexcept { container_.swap(other.container_); }
 
   /*** NON-MEMBER ***/
   friend bool operator==(const queue &lhs, const queue &rhs) {
     return lhs.container_ == rhs.container_;
   }
 
-  private:
+ private:
   container_type container_;
 };
 

@@ -160,56 +160,60 @@ class list {
   Node *end_;
 
  public:
-  list(const allocator &alloc = allocator())
-      : alloc_(alloc), sz_(0), end_(create_end()) {}
-
-  explicit list(size_type n, const allocator &alloc = allocator())
+  list(const allocator &alloc = allocator()) try
       : alloc_(alloc), sz_(0), end_(create_end()) {
-    try {
-      insert(end(), n);
-    } catch (std::bad_alloc &t) {
-      std::cerr << t.what() << std::endl;
-      clear();
-      throw;
-    }
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    clear();
+    throw;
+  }
+
+  explicit list(size_type n, const allocator &alloc = allocator()) try
+      : alloc_(alloc), sz_(0), end_(create_end()) {
+    insert(end(), n);
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    clear();
+    throw;
   }
 
   template <class InputIt>
-  list(InputIt first, InputIt last, const allocator &alloc = allocator())
+  list(InputIt first, InputIt last, const allocator &alloc = allocator()) try
       : alloc_(alloc), sz_(0), end_(create_end()) {
-    try {
-      for (; first != last; ++first) push_back(*first);
-    } catch (std::bad_alloc &t) {
-      std::cerr << t.what() << std::endl;
-      clear();
-      throw;
-    }
+    for (; first != last; ++first) push_back(*first);
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    clear();
+    throw;
   }
 
   list(std::initializer_list<value_type> const &items,
-       const allocator &alloc = allocator())
+       const allocator &alloc = allocator()) try
       : alloc_(alloc), sz_(0), end_(create_end()) {
-    try {
-      for (const_reference item : items) push_back(item);
-    } catch (std::bad_alloc &t) {
-      std::cerr << t.what() << std::endl;
-      clear();
-      throw;
-    }
+    for (const_reference item : items) push_back(item);
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    clear();
+    throw;
   }
 
-  list(const list &l) : alloc_(l.alloc_), sz_(0), end_(create_end()) {
+  list(const list &l) try : alloc_(l.alloc_), sz_(0), end_(create_end()) {
     for (const_iterator it = l.begin(); it != l.end(); ++it) {
-      try {
-        push_back(*it);
-      } catch (std::bad_alloc &t) {
-        clear();
-        throw;
-      }
+      push_back(*it);
     }
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    clear();
+    throw;
   }
 
-  list(list &&l) : alloc_(allocator()), sz_(0), end_(create_end()) { swap(l); }
+  list(list &&l) try : alloc_(allocator()), sz_(0), end_(create_end()) {
+    swap(l);
+  } catch (std::bad_alloc &t) {
+    std::cerr << t.what() << std::endl;
+    clear();
+    throw;
+  }
 
   ~list() noexcept {
     clear();
@@ -320,8 +324,12 @@ class list {
   void splice(iterator pos, list &other) {
     if (alloc_ != other.alloc_)
       throw std::invalid_argument("The behavior is undefined");
-    for (iterator it = other.begin(); it != other.end(); ++it)
-      insert(pos, std::move(*it));
+    //     if (other.sz_) {
+    //     for (iterator it = pos; it != other.end(); ++it) {
+
+    //     }
+    // }
+    for (iterator it = other.begin(); it != other.end(); ++it) insert(pos, *it);
     other.clear();
   }
 

@@ -14,3 +14,15 @@ TEST(ExceptionVector, Subtest_1) {
 
   ASSERT_TRUE(flag);
 }
+
+TEST(ExceptionVector, Subtest_2) {
+  s21::vector<int> own_vector = {};
+  bool flag = false;
+  try {
+    own_vector.pop_back();
+  } catch (...) {
+    flag = true;
+  }
+
+  ASSERT_TRUE(flag);
+}

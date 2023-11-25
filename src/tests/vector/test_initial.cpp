@@ -6,6 +6,24 @@ TEST(InitialVector, Subtest_1) {
   s21::vector<int> own_vector;
   std::vector<int> default_vector;
 
-  std::cout << default_vector.size() << '\n';
-  std::cout << own_vector.size() << '\n';
+  ASSERT_EQ(default_vector.capacity(), own_vector.capacity());
+  ASSERT_EQ(default_vector.size(), own_vector.size());
+}
+
+TEST(InitialVector, Subtest_2) {
+  s21::vector<int> own_vector({1, 2, 3});
+  std::vector<int> default_vector({1, 2, 3});
+
+  for (size_t i = 0; i < 3; i++) ASSERT_EQ(default_vector[i], own_vector[i]);
+  ASSERT_EQ(default_vector.capacity(), own_vector.capacity());
+  ASSERT_EQ(default_vector.size(), own_vector.size());
+}
+
+TEST(InitialVector, Subtest_3) {
+  s21::vector<int> own_vector = {1, 2, 3};
+  std::vector<int> default_vector = {1, 2, 3};
+
+  for (size_t i = 0; i < 3; i++) ASSERT_EQ(default_vector[i], own_vector[i]);
+  ASSERT_EQ(default_vector.capacity(), own_vector.capacity());
+  ASSERT_EQ(default_vector.size(), own_vector.size());
 }

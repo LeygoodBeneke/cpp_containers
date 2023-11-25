@@ -1,9 +1,8 @@
 #ifndef S21_VECTOR_H
 #define S21_VECTOR_H
 
-#define DEFAULT_CAPACITY 1
-
 #include <initializer_list>
+#include <iostream>
 #include <memory>
 
 namespace s21 {
@@ -20,10 +19,10 @@ class vector {
 
   vector();
   vector(unsigned size);
-  vector(vector&& v) noexcept;                       // +
-  vector(const vector& v);                           // +
-  vector(std::initializer_list<value_type>& items);  // +
-  ~vector();                                         // +
+  vector(vector&& v) noexcept;                      // +
+  vector(const vector& v);                          // +
+  vector(std::initializer_list<value_type> items);  // +
+  ~vector();                                        // +
 
   inline size_type size() const noexcept { return _size; }             // +
   inline size_type max_size() const { return _allocator.max_size(); }  // +
@@ -47,12 +46,12 @@ class vector {
 
   inline iterator begin() const noexcept { return _data; }        // +
   inline iterator end() const noexcept { return _data + _size; }  // +
-  inline T* data() { return _data; };                             // +
+  inline T* data() const noexcept { return _data; };              // +
 
   void shrink_to_fit() noexcept;  // +
 
-  reference operator[](size_type i) const;                     // +
-  value_type operator[](size_type i);                          // +
+  value_type operator[](size_type i) const;                    // +
+  reference operator[](size_type i);                           // +
   vector& operator=(vector&& v) noexcept;                      // +
   vector& operator=(const vector& v);                          // +
   vector& operator=(std::initializer_list<value_type> ilist);  // +
@@ -67,10 +66,9 @@ class vector {
 template <class T, class Allocator>
 vector<T, Allocator>::vector()
     : _allocator(std::allocator<value_type>()),
+      _data(nullptr),
       _size(0),
-      _capacity(DEFAULT_CAPACITY) {
-  _data = _allocator.allocate(_capacity);
-}
+      _capacity(0) {}
 
 template <class T, class Allocator>
 vector<T, Allocator>::vector(unsigned size) : _size(size), _capacity(size) {
@@ -118,8 +116,6 @@ vector<T, Allocator>::vector(vector&& v) noexcept {
 
 template <class T, class Allocator>
 vector<T, Allocator>::vector(const vector& v) {
-  for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
-  _allocator.deallocate(_data, _capacity);
   _size = v._size;
   _capacity = v._capacity;
 
@@ -128,12 +124,12 @@ vector<T, Allocator>::vector(const vector& v) {
 }
 
 template <class T, class Allocator>
-vector<T, Allocator>::vector(std::initializer_list<value_type>& items)
+vector<T, Allocator>::vector(std::initializer_list<value_type> items)
     : _size(items.size()), _capacity(items.size()) {
   _data = _allocator.allocate(_capacity);
   size_type idx = 0;
-  for (T item : items) {
-    _data[idx] = items;
+  for (value_type item : items) {
+    _data[idx] = item;
     idx++;
   }
 }
@@ -188,38 +184,38 @@ T* vector<T, Allocator>::insert(iterator pos, const_reference value) {
 
 template <class T, class Allocator>
 void vector<T, Allocator>::erase(iterator pos) {
-  for (T* it = pos; it < end(); it++) *it = *(it + 1);
+  if (!_size) throw "Vector is already empty!";
+
+  for (iterator it = pos; it < end() - 1; it++) *it = *(it + 1);
   _size--;
 }
 
 template <class T, class Allocator>
 void vector<T, Allocator>::push_back(const_reference value) {
   if (_size >= _capacity) {
-    iterator new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
+    size_t new_capacity = _capacity * 2 + (_capacity == 0);
+    iterator new_data = _allocator.allocate(new_capacity);
 
     for (size_t i = 0; i < _size; i++) new_data[i] = _data[i];
     _allocator.deallocate(_data, _capacity);
-    _capacity *= 2;
+    _capacity = new_capacity;
     _data = new_data;
   }
-
-  _data[_size] = value;
-  _size++;
+  _data[_size++] = value;
 }
 
 template <class T, class Allocator>
 void vector<T, Allocator>::push_back(T&& value) {
   if (_size >= _capacity) {
-    iterator new_data = _allocator.allocate(_capacity * 2 + _capacity == 0);
+    size_t new_capacity = _capacity * 2 + (_capacity == 0);
+    iterator new_data = _allocator.allocate(new_capacity);
 
     for (size_t i = 0; i < _size; i++) new_data[i] = _data[i];
     _allocator.deallocate(_data, _capacity);
-    _capacity *= 2;
+    _capacity = new_capacity;
     _data = new_data;
   }
-
-  _data[_size] = std::move(value);
-  _size++;
+  _data[_size++] = std::move(value);
 }
 
 template <class T, class Allocator>
@@ -229,13 +225,13 @@ void vector<T, Allocator>::shrink_to_fit() noexcept {
 }
 
 template <class T, class Allocator>
-T& s21::vector<T, Allocator>::operator[](size_type i) const {
+T s21::vector<T, Allocator>::operator[](size_type i) const {
   if (i >= _size) throw "Invalid vector index";
   return _data[i];
 }
 
 template <class T, class Allocator>
-T s21::vector<T, Allocator>::operator[](size_type i) {
+T& s21::vector<T, Allocator>::operator[](size_type i) {
   if (i >= _size) throw "Invalid vector index";
   return _data[i];
 }
@@ -271,6 +267,8 @@ vector<T, Allocator>& vector<T, Allocator>::operator=(const vector& v) {
 template <class T, class Allocator>
 vector<T, Allocator>& vector<T, Allocator>::operator=(
     std::initializer_list<value_type> ilist) {
+  for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
+  _allocator.deallocate(_data, _capacity);
   _size = ilist.size();
   _capacity = _size;
   _data = _allocator.allocate(_capacity);

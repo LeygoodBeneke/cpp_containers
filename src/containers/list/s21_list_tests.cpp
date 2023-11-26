@@ -297,6 +297,7 @@ TEST(Methods, Splice) {
   EXPECT_EQ(l.front(), 4);
   EXPECT_EQ(*(++l.begin()), 5);
   EXPECT_EQ(l.back(), 4);
+  EXPECT_EQ(l.size(), 7);
 }
 
 TEST(Methods, Sort) {

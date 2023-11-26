@@ -324,13 +324,19 @@ class list {
   void splice(iterator pos, list &other) {
     if (alloc_ != other.alloc_)
       throw std::invalid_argument("The behavior is undefined");
-    //     if (other.sz_) {
-    //     for (iterator it = pos; it != other.end(); ++it) {
+    if (other.sz_) {
+      iterator it = other.end();
+      it.ptr_->next_->prev_ = pos.ptr_->prev_;
+      it.ptr_->prev_->next_ = pos.ptr_;
 
-    //     }
-    // }
-    for (iterator it = other.begin(); it != other.end(); ++it) insert(pos, *it);
-    other.clear();
+      pos.ptr_->prev_->next_ = it.ptr_->next_;
+      pos.ptr_->prev_ = it.ptr_->prev_;
+
+      sz_ += other.sz_;
+      other.sz_ = 0;
+      other.end_->next_ = it.ptr_;
+      other.end_->prev_ = it.ptr_;
+    }
   }
 
   void reverse() noexcept {

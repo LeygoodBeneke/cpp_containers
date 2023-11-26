@@ -83,21 +83,23 @@ vector<T, Allocator>::~vector() {
 
 template <class T, class Allocator>
 void vector<T, Allocator>::reserve(size_type size) {
-  if (size <= max_size()) throw "Cant allocate memory";
+  if (size > max_size()) throw "Cant allocate memory";
   if (size <= _size) return;
 
   vector<T> new_data(size);
 
-  for (int i = 0; i < _size; i++) new_data[i] = _data[i];
+  for (size_t i = 0; i < _size; i++) new_data[i] = _data[i];
 
   for (size_t i = 0; i < _size; i++) _allocator.destroy(_data + i);
   _allocator.deallocate(_data, _capacity);
 
-  _data = _allocator.allocate(new_data.capacity());
-  for (int i = 0; i < size; i++) _data[i] = new_data[i];
+  if (!_capacity) _capacity = 1;
+  while (_capacity < size) _capacity <<= 1;
+
+  _data = _allocator.allocate(_capacity);
+  for (size_t i = 0; i < size; i++) _data[i] = new_data[i];
 
   _size = size;
-  _capacity = size;
 }
 
 template <class T, class Allocator>
@@ -174,11 +176,13 @@ void vector<T, Allocator>::swap(vector& other) noexcept {
 
 template <class T, class Allocator>
 T* vector<T, Allocator>::insert(iterator pos, const_reference value) {
+  size_t idx = pos - begin();
+  if (idx > _size) throw "incorrect iterator";
   reserve(_size + 1);
-  for (iterator end = _data + _size - 1; end > pos; end--) {
-    *end = *(end - 1);
+  for (size_t i = _size - 1; i > idx; i--) {
+    _data[i] = _data[i - 1];
   }
-  *pos = value;
+  _data[idx] = value;
   return pos;
 }
 

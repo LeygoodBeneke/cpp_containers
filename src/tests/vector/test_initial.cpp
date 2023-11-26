@@ -27,3 +27,12 @@ TEST(InitialVector, Subtest_3) {
   ASSERT_EQ(default_vector.capacity(), own_vector.capacity());
   ASSERT_EQ(default_vector.size(), own_vector.size());
 }
+
+TEST(InitialVector, Subtest_4) {
+  s21::vector<int> own_vector{1, 2, 3};
+  std::vector<int> default_vector{1, 2, 3};
+
+  for (size_t i = 0; i < 3; i++) ASSERT_EQ(default_vector[i], own_vector[i]);
+  ASSERT_EQ(default_vector.capacity(), own_vector.capacity());
+  ASSERT_EQ(default_vector.size(), own_vector.size());
+}

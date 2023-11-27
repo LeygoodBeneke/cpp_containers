@@ -96,6 +96,14 @@ TEST(Methods, Swap) {
   EXPECT_TRUE(q2.size() == 4);
 }
 
+TEST(Methods, InsertManyBack) {
+  s21::list<int> q{1, 2, 3, 4};
+  s21::list<int> q2{1, 2, 3, 4, 5, 6, 7};
+  q.insert_many_back(5, 6, 7);
+  EXPECT_EQ(q.size(), 7);
+  EXPECT_TRUE(q == q2);
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
 

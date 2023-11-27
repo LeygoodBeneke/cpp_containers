@@ -65,6 +65,11 @@ class queue {
   void pop() { container_.pop_front(); }
   void swap(queue &other) noexcept { container_.swap(other.container_); }
 
+  template <class... Args>
+  void insert_many_back(Args &&...args) {
+    for (const auto &arg : {args...}) container_.push_back(arg);
+  }
+
   /*** NON-MEMBER ***/
   friend bool operator==(const queue &lhs, const queue &rhs) {
     return lhs.container_ == rhs.container_;

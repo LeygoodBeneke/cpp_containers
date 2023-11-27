@@ -252,6 +252,30 @@ TEST(Methods, InsertCount) {
   EXPECT_EQ(l.size(), 9);
 }
 
+TEST(Methods, InsertMany) {
+  s21::list<int> l{1, 2, 3, 4};
+  s21::list<int> l2{5, 6, 7, 1, 2, 3, 4};
+  l.insert_many(l.begin(), 5, 6, 7);
+  EXPECT_EQ(l.size(), 7);
+  EXPECT_TRUE(l == l2);
+}
+
+TEST(Methods, InsertManyBack) {
+  s21::list<int> l{1, 2, 3, 4};
+  s21::list<int> l2{1, 2, 3, 4, 5, 6, 7};
+  l.insert_many_back(5, 6, 7);
+  EXPECT_EQ(l.size(), 7);
+  EXPECT_TRUE(l == l2);
+}
+
+TEST(Methods, InsertManyFront) {
+  s21::list<int> l{1, 2, 3, 4};
+  s21::list<int> l2{5, 6, 7, 1, 2, 3, 4};
+  l.insert_many_front(5, 6, 7);
+  EXPECT_EQ(l.size(), 7);
+  EXPECT_TRUE(l == l2);
+}
+
 TEST(Methods, Erase) {
   s21::list<int> l{1, 2, 3, 4, 5};
   l.erase(l.begin());

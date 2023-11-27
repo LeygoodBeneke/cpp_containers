@@ -275,6 +275,26 @@ class list {
     return begin();
   }
 
+  template <class... Args>
+  iterator insert_many(const_iterator pos, Args &&...args) {
+    iterator it = iterator(const_cast<Node *>(pos.ptr_));
+    for (const auto &arg : {args...}) {
+      insert(it, arg);
+    }
+    return it;
+  }
+
+  template <class... Args>
+  void insert_many_back(Args &&...args) {
+    for (const auto &arg : {args...}) push_back(arg);
+  }
+
+  template <class... Args>
+  void insert_many_front(Args &&...args) {
+    iterator it = begin();
+    for (const auto &arg : {args...}) insert(it, arg);
+  }
+
   iterator erase(iterator pos) {
     if (pos == end()) throw std::out_of_range("Cannot erase the end iterator");
     iterator tmp(pos.ptr_->next_);

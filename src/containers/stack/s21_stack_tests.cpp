@@ -89,6 +89,14 @@ TEST(Methods, Swap) {
   EXPECT_TRUE(s2.size() == 4);
 }
 
+TEST(Methods, InsertManyFront) {
+  s21::list<int> s{1, 2, 3, 4};
+  s21::list<int> s2{5, 6, 7, 1, 2, 3, 4};
+  s.insert_many_front(5, 6, 7);
+  EXPECT_EQ(s.size(), 7);
+  EXPECT_TRUE(s == s2);
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
 

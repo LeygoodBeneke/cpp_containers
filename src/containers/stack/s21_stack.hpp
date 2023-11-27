@@ -60,17 +60,23 @@ class stack {
     }
   }
 
-    void pop() { container_.pop_back(); }
-    void swap(stack & other) noexcept { container_.swap(other.container_); }
+  void pop() { container_.pop_back(); }
+  void swap(stack &other) noexcept { container_.swap(other.container_); }
 
-    /*** NON-MEMBER ***/
-    friend bool operator==(const stack &lhs, const stack &rhs) {
-      return lhs.container_ == rhs.container_;
-    }
+  template <class... Args>
+  void insert_many_front(Args &&...args) {
+    s21::list<T> it = container_.begin();
+    for (const auto &arg : {args...}) insert(it, arg);
+  }
 
-   private:
-    container_type container_;
-  };
+  /*** NON-MEMBER ***/
+  friend bool operator==(const stack &lhs, const stack &rhs) {
+    return lhs.container_ == rhs.container_;
+  }
+
+ private:
+  container_type container_;
+};
 
 }  // namespace s21
 

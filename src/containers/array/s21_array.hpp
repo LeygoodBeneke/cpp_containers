@@ -21,8 +21,6 @@ struct array {
   using iterator = pointer;
   using const_iterator = const_pointer;
 
-  value_type data_[N]{};
-
   /* Initialization is implicitly declared */
   array() = default;
   array(const array &) = default;
@@ -83,10 +81,81 @@ struct array {
     }
     return true;
   }
+
+ private:
+  value_type data_[N]{};
 };
 
-// template <typename T>
-// struct array<T, 0> {};
+// partial specialisation for zero-size array
+template <typename T>
+struct array<T, 0> {
+  using value_type = T;
+  using reference = value_type &;
+  using pointer = value_type *;
+  using const_pointer = const value_type *;
+  using const_reference = const value_type &;
+  using size_type = std::size_t;
+  using iterator = pointer;
+  using const_iterator = const_pointer;
+
+  constexpr reference at(size_type pos) {
+    std::terminate();
+    return data_;
+  }
+  constexpr const_reference at(size_type pos) const {
+    std::terminate();
+    return data_;
+  }
+
+  reference operator[](size_type pos) {
+    throw_zero();
+    return data_;
+  }
+
+  reference front() {
+    throw_zero();
+    return data_;
+  }
+  reference back() {
+    throw_zero();
+    return data_;
+  }
+  constexpr const_reference front() const {
+    std::terminate();
+    return data_;
+  }
+  constexpr const_reference back() const {
+    std::terminate();
+    return data_;
+  }
+
+  constexpr iterator data() noexcept {
+    std::terminate();
+    return data_;
+  }
+  constexpr const_iterator data() const noexcept { return nullptr; }
+
+  iterator begin() noexcept { return nullptr; }
+  iterator end() noexcept { return nullptr; }
+  const_iterator begin() const noexcept { return nullptr; }
+  const_iterator end() const noexcept { return nullptr; }
+
+  constexpr bool empty() const noexcept { return true; }
+  constexpr size_type size() const noexcept { return 0; }
+  constexpr size_type max_size() const noexcept { return 0; }
+
+  void swap(array &other) { std::swap(data_, other.data_); }
+
+  void fill(const_reference value) { throw_zero(); }
+
+ private:
+  value_type data_[1]{};
+
+  /*** UTILS ***/
+  void throw_zero() {
+    throw std::out_of_range("Undefined Behavior: Zero size array");
+  }
+};
 
 }  // namespace s21
 

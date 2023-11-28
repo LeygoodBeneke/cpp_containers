@@ -124,6 +124,16 @@ TEST(Methods, Fill) {
   EXPECT_TRUE(a == a2);
 }
 
+TEST(Specialization, Zero) {
+  s21::array<int, 0> a;
+  EXPECT_EQ(a.size(), 0);
+  EXPECT_EQ(a.max_size(), 0);
+  EXPECT_EQ(a.empty(), true);
+  s21::array<int, 0> a2;
+  a.swap(a2);
+  EXPECT_EQ(a2.size(), 0);
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
 

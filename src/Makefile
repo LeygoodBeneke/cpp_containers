@@ -3,18 +3,11 @@ COVERAGE=
 
 .PHONY: all clean test add_coverage gcov_report
 
-all: clean s21_containers.a
+all: clean test
 deafult: all
 
-s21_containers.o: containers/*/*.cc
-	g++ $(FLAGS) -c $^
-
-s21_containers.a: s21_containers.o
-	ar rvs s21_containers.a *.o
-
-
-test: clean s21_containers.a
-	g++ $(FLAGS) $(COVERAGE) tests/s21_tests.cpp tests/*/*.cpp s21_containers.a -o s21_test -lgtest
+test: clean
+	g++ $(FLAGS) $(COVERAGE) tests/s21_tests.cpp tests/*/*.cpp -o s21_test -lgtest
 	./s21_test
 
 add_coverage:

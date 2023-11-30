@@ -1,5 +1,5 @@
-#ifndef S21_LIST_HPP
-#define S21_LIST_HPP
+#ifndef S21_ARRAY_HPP
+#define S21_ARRAY_HPP
 
 #include <cstddef>
 #include <initializer_list>

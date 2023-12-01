@@ -25,7 +25,8 @@ class RedBlackTree {
 
  public:
   RedBlackTree<T>();
-  Node<T> *searchTree(int k);
+  ~RedBlackTree<T>();
+  Node<T> *searchTree(T k);
   Node<T> *minimum(Node<T> *node);
   Node<T> *maximum(Node<T> *node);
   Node<T> *successor(Node<T> *x);
@@ -34,12 +35,12 @@ class RedBlackTree {
   void rightRotate(Node<T> *x);
   void insert(T key);
   Node<T> *getRoot() { return this->root; }
-  void deleteNode(int data) { deleteNodeHelper(this->root, data); }
+  void deleteNode(T data) { deleteNodeHelper(this->root, data); }
 };
 
 template <typename T>
 void RedBlackTree<T>::initializeNULLNode(Node<T> *node, Node<T> *parent) {
-  node->data = 0;
+  node->data = {};
   node->parent = parent;
   node->left = nullptr;
   node->right = nullptr;
@@ -239,7 +240,12 @@ RedBlackTree<T>::RedBlackTree() {
 }
 
 template <typename T>
-Node<T> *RedBlackTree<T>::searchTree(int k) {
+RedBlackTree<T>::~RedBlackTree() {
+    deleteNode(root->data);
+}
+
+template <typename T>
+Node<T> *RedBlackTree<T>::searchTree(T k) {
   return searchTreeHelper(this->root, k);
 }
 

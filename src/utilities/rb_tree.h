@@ -22,6 +22,7 @@ class RedBlackTree {
   void rbTransplant(Node<T> *u, Node<T> *v);
   void deleteNodeHelper(Node<T> *node, T key);
   void insertFix(Node<T> *k);
+  class RedBlackTreeIterator;
 
  public:
   RedBlackTree<T>();
@@ -36,6 +37,97 @@ class RedBlackTree {
   void insert(T key);
   Node<T> *getRoot() { return this->root; }
   void deleteNode(T data) { deleteNodeHelper(this->root, data); }
+};
+
+template <typename T>
+class RedBlackTree<T>::RedBlackTreeIterator {
+ public:
+  RedBlackTreeIterator() noexcept;
+  RedBlackTreeIterator(const RedBlackTreeIterator &it) noexcept : ptr(it) {}
+  RedBlackTreeIterator(const Node<T> &node_ptr) noexcept : ptr(node_ptr) {}
+  ~RedBlackTreeIterator() noexcept;
+
+  RedBlackTreeIterator &operator=(const RedBlackTreeIterator &other) noexcept {
+    ptr = other.ptr;
+    return *this;
+  }
+
+  bool operator==(const RedBlackTreeIterator &other) const noexcept {
+    return ptr == other.ptr;
+  }
+
+  bool operator!=(const RedBlackTreeIterator &other) const noexcept {
+    return ptr != other.ptr;
+  }
+
+  T &operator*() { return ptr.data; }
+
+  RedBlackTreeIterator operator++() noexcept {
+    RedBlackTreeIterator it(*this);
+    ptr = next(ptr);
+    return it;
+  }
+
+  RedBlackTreeIterator &operator++(int) noexcept {
+    ptr = next(ptr);
+    return *this;
+  }
+
+  RedBlackTreeIterator operator--() noexcept {
+    RedBlackTreeIterator it(*this);
+    ptr = prev(ptr);
+    return it;
+  }
+
+  RedBlackTreeIterator &operator--(int) noexcept {
+    ptr = prev(ptr);
+    return *this;
+  }
+
+  RedBlackTreeIterator &operator-=(const unsigned tmp) noexcept {
+    for (unsigned i = 0; i < tmp; i++) --(*this);
+    return *this;
+  }
+
+  RedBlackTreeIterator &operator+=(const unsigned tmp) noexcept {
+    for (unsigned i = 0; i < tmp; i++) ++(*this);
+    return *this;
+  }
+
+ private:
+  Node<T> *next(const RedBlackTreeIterator &root) noexcept {
+    if (root.ptr->right == nullptr) {
+      Node<T> *parent = root.ptr->parent;
+      while (parent) {
+        if (parent->data > root.ptr->data) {
+          return parent;
+        }
+        parent = parent->parent;
+      }
+      return nullptr;
+    }
+    Node<T> *right = root.ptr->right;
+    while (right->left) right = right->left;
+    return right;
+  }
+
+  Node<T> *prev(const RedBlackTreeIterator &root) noexcept {
+    if (root.ptr->left == nullptr) {
+      Node<T> *parent = root.ptr->parent;
+      while (parent) {
+        if (parent->data < root.ptr->data) {
+          return parent;
+        }
+        parent = parent->parent;
+      }
+      return nullptr;
+    }
+    Node<T> *left = root.ptr->left;
+    while (left->right) left = left->right;
+    return left;
+  }
+
+  Node<T> *ptr;
 };
 
 template <typename T>
@@ -241,7 +333,7 @@ RedBlackTree<T>::RedBlackTree() {
 
 template <typename T>
 RedBlackTree<T>::~RedBlackTree() {
-    deleteNode(root->data);
+  deleteNode(root->data);
 }
 
 template <typename T>

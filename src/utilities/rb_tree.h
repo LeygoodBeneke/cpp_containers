@@ -1,7 +1,7 @@
 #ifndef RB_TREE_H
 #define RB_TREE_H
 
-template <typename T>
+template <typename T, typename ValueType = T>
 class RedBlackTree {
  private:
   class RedBlackTreeIterator;
@@ -18,8 +18,8 @@ class RedBlackTree {
   void insertFix(Node *k);
 
  public:
-  RedBlackTree<T>();
-  ~RedBlackTree<T>();
+  RedBlackTree<T, ValueType>();
+  ~RedBlackTree<T, ValueType>();
   Node *searchTree(T k);
   Node *minimum(Node *node);
   Node *maximum(Node *node);
@@ -29,20 +29,21 @@ class RedBlackTree {
   void rightRotate(Node *x);
   void insert(T key);
   Node *getRoot() { return this->root; }
-  void deleteNode(T data) { deleteNodeHelper(this->root, data); }
+  void deleteNode(T key) { deleteNodeHelper(this->root, key); }
 };
 
-template <typename T>
-struct RedBlackTree<T>::Node {
-  T data;
+template <typename T, typename ValueType>
+struct RedBlackTree<T, ValueType>::Node {
+  T key;
+  ValueType value;
   Node *parent;
   Node *left;
   Node *right;
   int color;
 };
 
-template <typename T>
-class RedBlackTree<T>::RedBlackTreeIterator {
+template <typename T, typename ValueType>
+class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
  public:
   RedBlackTreeIterator() noexcept;
   RedBlackTreeIterator(const RedBlackTreeIterator &it) noexcept : ptr(it) {}
@@ -62,7 +63,7 @@ class RedBlackTree<T>::RedBlackTreeIterator {
     return ptr != other.ptr;
   }
 
-  T &operator*() { return ptr->data; }
+  T &operator*() { return ptr->key; }
 
   RedBlackTreeIterator operator++() noexcept {
     RedBlackTreeIterator it(*this);
@@ -101,7 +102,7 @@ class RedBlackTree<T>::RedBlackTreeIterator {
     if (root.ptr->right == nullptr) {
       Node *parent = root.ptr->parent;
       while (parent) {
-        if (parent->data > root.ptr->data) {
+        if (parent->key > root.ptr->key) {
           return parent;
         }
         parent = parent->parent;
@@ -117,7 +118,7 @@ class RedBlackTree<T>::RedBlackTreeIterator {
     if (root.ptr->left == nullptr) {
       Node *parent = root.ptr->parent;
       while (parent) {
-        if (parent->data < root.ptr->data) {
+        if (parent->key < root.ptr->key) {
           return parent;
         }
         parent = parent->parent;
@@ -132,8 +133,8 @@ class RedBlackTree<T>::RedBlackTreeIterator {
   Node *ptr;
 };
 
-template <typename T>
-RedBlackTree<T>::RedBlackTree() {
+template <typename T, typename ValueType>
+RedBlackTree<T, ValueType>::RedBlackTree() {
   TNULL = new Node;
   TNULL->color = 0;
   TNULL->left = nullptr;
@@ -141,34 +142,231 @@ RedBlackTree<T>::RedBlackTree() {
   root = TNULL;
 }
 
-template <typename T>
-RedBlackTree<T>::~RedBlackTree() {
-  deleteNode(root->data);
+template <typename T, typename ValueType>
+RedBlackTree<T, ValueType>::~RedBlackTree() {
+  deleteNode(root->key);
 }
 
-template <typename T>
-typename RedBlackTree<T>::Node *RedBlackTree<T>::searchTree(T k) {
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::initializeNULLNode(Node *node, Node *parent) {
+  node->key = {};
+  node->parent = parent;
+  node->left = nullptr;
+  node->right = nullptr;
+  node->color = 0;
+}
+
+template <typename T, typename ValueType>
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::searchTreeHelper(Node *node, T key) {
+  if (node == TNULL || key == node->key) {
+    return node;
+  }
+
+  if (key < node->key) {
+    return searchTreeHelper(node->left, key);
+  }
+  return searchTreeHelper(node->right, key);
+}
+
+// For balancing the tree after deletion
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::deleteFix(Node *x) {
+  Node *s;
+  while (x != root && x->color == 0) {
+    if (x == x->parent->left) {
+      s = x->parent->right;
+      if (s->color == 1) {
+        s->color = 0;
+        x->parent->color = 1;
+        leftRotate(x->parent);
+        s = x->parent->right;
+      }
+
+      if (s->left->color == 0 && s->right->color == 0) {
+        s->color = 1;
+        x = x->parent;
+      } else {
+        if (s->right->color == 0) {
+          s->left->color = 0;
+          s->color = 1;
+          rightRotate(s);
+          s = x->parent->right;
+        }
+
+        s->color = x->parent->color;
+        x->parent->color = 0;
+        s->right->color = 0;
+        leftRotate(x->parent);
+        x = root;
+      }
+    } else {
+      s = x->parent->left;
+      if (s->color == 1) {
+        s->color = 0;
+        x->parent->color = 1;
+        rightRotate(x->parent);
+        s = x->parent->left;
+      }
+
+      if (s->right->color == 0 && s->right->color == 0) {
+        s->color = 1;
+        x = x->parent;
+      } else {
+        if (s->left->color == 0) {
+          s->right->color = 0;
+          s->color = 1;
+          leftRotate(s);
+          s = x->parent->left;
+        }
+
+        s->color = x->parent->color;
+        x->parent->color = 0;
+        s->left->color = 0;
+        rightRotate(x->parent);
+        x = root;
+      }
+    }
+  }
+  x->color = 0;
+}
+
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::rbTransplant(Node *u, Node *v) {
+  if (u->parent == nullptr) {
+    root = v;
+  } else if (u == u->parent->left) {
+    u->parent->left = v;
+  } else {
+    u->parent->right = v;
+  }
+  v->parent = u->parent;
+}
+
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::deleteNodeHelper(Node *node, T key) {
+  Node *z = TNULL;
+  Node *x, *y;
+  while (node != TNULL) {
+    if (node->key == key) {
+      z = node;
+    }
+
+    if (node->key <= key) {
+      node = node->right;
+    } else {
+      node = node->left;
+    }
+  }
+
+  if (z == TNULL) {  // not found
+    return;
+  }
+
+  y = z;
+  int y_original_color = y->color;
+  if (z->left == TNULL) {
+    x = z->right;
+    rbTransplant(z, z->right);
+  } else if (z->right == TNULL) {
+    x = z->left;
+    rbTransplant(z, z->left);
+  } else {
+    y = minimum(z->right);
+    y_original_color = y->color;
+    x = y->right;
+    if (y->parent == z) {
+      x->parent = y;
+    } else {
+      rbTransplant(y, y->right);
+      y->right = z->right;
+      y->right->parent = y;
+    }
+
+    rbTransplant(z, y);
+    y->left = z->left;
+    y->left->parent = y;
+    y->color = z->color;
+  }
+  delete z;
+  if (y_original_color == 0) {
+    deleteFix(x);
+  }
+}
+
+// For balancing the tree after insertion
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::insertFix(Node *k) {
+  Node *u;
+  while (k->parent->color == 1) {
+    if (k->parent == k->parent->parent->right) {
+      u = k->parent->parent->left;
+      if (u->color == 1) {
+        u->color = 0;
+        k->parent->color = 0;
+        k->parent->parent->color = 1;
+        k = k->parent->parent;
+      } else {
+        if (k == k->parent->left) {
+          k = k->parent;
+          rightRotate(k);
+        }
+        k->parent->color = 0;
+        k->parent->parent->color = 1;
+        leftRotate(k->parent->parent);
+      }
+    } else {
+      u = k->parent->parent->right;
+
+      if (u->color == 1) {
+        u->color = 0;
+        k->parent->color = 0;
+        k->parent->parent->color = 1;
+        k = k->parent->parent;
+      } else {
+        if (k == k->parent->right) {
+          k = k->parent;
+          leftRotate(k);
+        }
+        k->parent->color = 0;
+        k->parent->parent->color = 1;
+        rightRotate(k->parent->parent);
+      }
+    }
+    if (k == root) {
+      break;
+    }
+  }
+  root->color = 0;
+}
+
+template <typename T, typename ValueType>
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::searchTree(T k) {
   return searchTreeHelper(this->root, k);
 }
 
-template <typename T>
-typename RedBlackTree<T>::Node *RedBlackTree<T>::minimum(Node *node) {
+template <typename T, typename ValueType>
+typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::minimum(
+    Node *node) {
   while (node->left != TNULL) {
     node = node->left;
   }
   return node;
 }
 
-template <typename T>
-typename RedBlackTree<T>::Node *RedBlackTree<T>::maximum(Node *node) {
+template <typename T, typename ValueType>
+typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::maximum(
+    Node *node) {
   while (node->right != TNULL) {
     node = node->right;
   }
   return node;
 }
 
-template <typename T>
-typename RedBlackTree<T>::Node *RedBlackTree<T>::successor(Node *x) {
+template <typename T, typename ValueType>
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::successor(Node *x) {
   if (x->right != TNULL) {
     return minimum(x->right);
   }
@@ -181,8 +379,9 @@ typename RedBlackTree<T>::Node *RedBlackTree<T>::successor(Node *x) {
   return y;
 }
 
-template <typename T>
-typename RedBlackTree<T>::Node *RedBlackTree<T>::predecessor(Node *x) {
+template <typename T, typename ValueType>
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::predecessor(Node *x) {
   if (x->left != TNULL) return maximum(x->left);
 
   Node *y = x->parent;
@@ -194,8 +393,8 @@ typename RedBlackTree<T>::Node *RedBlackTree<T>::predecessor(Node *x) {
   return y;
 }
 
-template <typename T>
-void RedBlackTree<T>::leftRotate(Node *x) {
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::leftRotate(Node *x) {
   Node *y = x->right;
   x->right = y->left;
   if (y->left != TNULL) {
@@ -213,8 +412,8 @@ void RedBlackTree<T>::leftRotate(Node *x) {
   x->parent = y;
 }
 
-template <typename T>
-void RedBlackTree<T>::rightRotate(Node *x) {
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::rightRotate(Node *x) {
   Node *y = x->left;
   x->left = y->right;
   if (y->right != TNULL) {
@@ -233,11 +432,11 @@ void RedBlackTree<T>::rightRotate(Node *x) {
 }
 
 // Inserting a node
-template <typename T>
-void RedBlackTree<T>::insert(T key) {
+template <typename T, typename ValueType>
+void RedBlackTree<T, ValueType>::insert(T key) {
   Node *node = new Node;
   node->parent = nullptr;
-  node->data = key;
+  node->key = key;
   node->left = TNULL;
   node->right = TNULL;
   node->color = 1;
@@ -247,7 +446,7 @@ void RedBlackTree<T>::insert(T key) {
 
   while (x != TNULL) {
     y = x;
-    if (node->data < x->data) {
+    if (node->key < x->key) {
       x = x->left;
     } else {
       x = x->right;
@@ -257,7 +456,7 @@ void RedBlackTree<T>::insert(T key) {
   node->parent = y;
   if (y == nullptr) {
     root = node;
-  } else if (node->data < y->data) {
+  } else if (node->key < y->key) {
     y->left = node;
   } else {
     y->right = node;

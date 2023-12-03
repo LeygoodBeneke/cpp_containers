@@ -157,7 +157,8 @@ void RedBlackTree<T, ValueType>::initializeNULLNode(Node *node, Node *parent) {
 }
 
 template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::searchTreeHelper(Node *node, T key) {
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::searchTreeHelper(Node *node, T key) {
   if (node == TNULL || key == node->key) {
     return node;
   }
@@ -340,12 +341,14 @@ void RedBlackTree<T, ValueType>::insertFix(Node *k) {
 }
 
 template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::searchTree(T k) {
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::searchTree(T k) {
   return searchTreeHelper(this->root, k);
 }
 
 template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::minimum(Node *node) {
+typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::minimum(
+    Node *node) {
   while (node->left != TNULL) {
     node = node->left;
   }
@@ -353,7 +356,8 @@ typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::minimum(N
 }
 
 template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::maximum(Node *node) {
+typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::maximum(
+    Node *node) {
   while (node->right != TNULL) {
     node = node->right;
   }
@@ -361,7 +365,8 @@ typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::maximum(N
 }
 
 template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::successor(Node *x) {
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::successor(Node *x) {
   if (x->right != TNULL) {
     return minimum(x->right);
   }
@@ -375,7 +380,8 @@ typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::successor
 }
 
 template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::predecessor(Node *x) {
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::predecessor(Node *x) {
   if (x->left != TNULL) return maximum(x->left);
 
   Node *y = x->parent;

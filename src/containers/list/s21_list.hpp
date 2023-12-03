@@ -32,10 +32,7 @@ class list {
  public:
   class ListIterator {
    public:
-    using iterator_category = std::bidirectional_iterator_tag;
-    using difference_type = std::ptrdiff_t;
     friend class list;
-    friend class ListConstIterator;
 
     ListIterator() noexcept {}
     ListIterator(const ListIterator &it) noexcept : ptr_(it.ptr_) {}
@@ -95,10 +92,7 @@ class list {
 
   class ListConstIterator {
    public:
-    using iterator_category = std::bidirectional_iterator_tag;
-    using difference_type = std::ptrdiff_t;
     friend class list;
-    friend class ListIterator;
 
     ListConstIterator() noexcept {}
     ListConstIterator(const ListConstIterator &it) noexcept : ptr_(it.ptr_) {}

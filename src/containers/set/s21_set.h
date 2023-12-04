@@ -52,12 +52,13 @@ class set {
   }
 
   iterator begin() {
-    iterator it(*rb.minimum(rb.getRoot()));
+    iterator it(rb.minimum(rb.getRoot()));
     return it;
   }
 
   iterator end() {
-    iterator it(*rb.maximum(rb.getRoot()));
+    iterator it(rb.maximum(rb.getRoot()));
+    it++;
     return it;
   }
 

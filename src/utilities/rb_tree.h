@@ -25,6 +25,7 @@ class RedBlackTree {
   Node *maximum(Node *node);
   Node *successor(Node *x);
   Node *predecessor(Node *x);
+  Node *getNullNode();
   void leftRotate(Node *x);
   void rightRotate(Node *x);
   void insert(T key);
@@ -40,15 +41,25 @@ struct RedBlackTree<T, ValueType>::Node {
   Node *left;
   Node *right;
   int color;
+
+  Node() : key(), value(), parent(nullptr), left(nullptr), right(nullptr), color(0) {}
+
+  bool operator==(Node *rhs) {
+    return value == rhs->value &&
+    parent == rhs->parent &&
+    left == rhs->left &&
+    right == rhs->right &&
+    color == rhs->color;
+  }
 };
 
 template <typename T, typename ValueType>
 class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
  public:
   RedBlackTreeIterator() noexcept;
-  RedBlackTreeIterator(const RedBlackTreeIterator &it) noexcept : ptr(it) {}
-  RedBlackTreeIterator(const Node &node_ptr) noexcept : ptr(node_ptr) {}
-  ~RedBlackTreeIterator() noexcept;
+  RedBlackTreeIterator(RedBlackTreeIterator &it) noexcept : ptr(it.ptr) {}
+  RedBlackTreeIterator(Node &node_ptr) noexcept : ptr(&node_ptr) {}
+  ~RedBlackTreeIterator() noexcept {}
 
   RedBlackTreeIterator &operator=(const RedBlackTreeIterator &other) noexcept {
     ptr = other.ptr;
@@ -57,6 +68,10 @@ class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
 
   bool operator==(const RedBlackTreeIterator &other) const noexcept {
     return ptr == other.ptr;
+  }
+
+  bool operator==(Node *other) const noexcept {
+    return ptr == other;
   }
 
   bool operator!=(const RedBlackTreeIterator &other) const noexcept {
@@ -78,7 +93,7 @@ class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
 
   RedBlackTreeIterator operator--() noexcept {
     RedBlackTreeIterator it(*this);
-    ptr = prev(ptr);
+    ptr = prev(*this);
     return it;
   }
 
@@ -98,23 +113,23 @@ class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
   }
 
  private:
-  Node *next(const RedBlackTreeIterator &root) noexcept {
-    if (root.ptr->right == nullptr) {
-      Node *parent = root.ptr->parent;
+  Node *next(Node *root) noexcept {
+    if (root->right == nullptr) {
+      Node *parent = root->parent;
       while (parent) {
-        if (parent->key > root.ptr->key) {
+        if (parent->key > root->key) {
           return parent;
         }
         parent = parent->parent;
       }
       return nullptr;
     }
-    Node *right = root.ptr->right;
+    Node *right = root->right;
     while (right->left) right = right->left;
     return right;
   }
 
-  Node *prev(const RedBlackTreeIterator &root) noexcept {
+  Node *prev(RedBlackTreeIterator &root) noexcept {
     if (root.ptr->left == nullptr) {
       Node *parent = root.ptr->parent;
       while (parent) {
@@ -135,16 +150,17 @@ class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
 
 template <typename T, typename ValueType>
 RedBlackTree<T, ValueType>::RedBlackTree() {
-  TNULL = new Node;
-  TNULL->color = 0;
-  TNULL->left = nullptr;
-  TNULL->right = nullptr;
+  TNULL = new Node();
+//  TNULL->color = 0;
+//  TNULL->left = nullptr;
+//  TNULL->right = nullptr;
   root = TNULL;
 }
 
 template <typename T, typename ValueType>
 RedBlackTree<T, ValueType>::~RedBlackTree() {
   deleteNode(root->key);
+  delete TNULL;
 }
 
 template <typename T, typename ValueType>
@@ -394,6 +410,12 @@ RedBlackTree<T, ValueType>::predecessor(Node *x) {
 }
 
 template <typename T, typename ValueType>
+typename RedBlackTree<T, ValueType>::Node *
+RedBlackTree<T, ValueType>::getNullNode() {
+  return TNULL;
+}
+
+template <typename T, typename ValueType>
 void RedBlackTree<T, ValueType>::leftRotate(Node *x) {
   Node *y = x->right;
   x->right = y->left;
@@ -437,6 +459,7 @@ void RedBlackTree<T, ValueType>::insert(T key) {
   Node *node = new Node;
   node->parent = nullptr;
   node->key = key;
+  node->value = key;
   node->left = TNULL;
   node->right = TNULL;
   node->color = 1;

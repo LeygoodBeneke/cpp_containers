@@ -8,6 +8,7 @@
 #include "containers/queue/s21_queue.hpp"
 #include "containers/stack/s21_stack.hpp"
 #include "containers/vector/s21_vector.hpp"
+#include "containers/set/s21_set.h"
 #include "utilities/rb_tree.h"
 
 #endif

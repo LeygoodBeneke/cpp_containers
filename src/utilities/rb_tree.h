@@ -63,7 +63,7 @@ class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
     return ptr != other.ptr;
   }
 
-  T &operator*() { return ptr->key; }
+  T &operator*() { return ptr->value; }
 
   RedBlackTreeIterator operator++() noexcept {
     RedBlackTreeIterator it(*this);

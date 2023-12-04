@@ -1,7 +1,7 @@
 #ifndef RB_TREE_H
 #define RB_TREE_H
 
-#include <iostream>
+
 template <typename T, typename ValueType = T>
 class RedBlackTree {
  private:
@@ -51,111 +51,6 @@ struct RedBlackTree<T, ValueType>::Node {
         left(nullptr),
         right(nullptr),
         color(0) {}
-
-  friend bool operator==(const typename RedBlackTree<T, ValueType>::Node &lhs,
-                         const typename RedBlackTree<T, ValueType>::Node &rhs) {
-    return lhs.value == rhs.value && lhs.parent == rhs.parent &&
-           lhs.left == rhs.left && lhs.right == rhs.right &&
-           lhs.color == rhs.color;
-  }
-  friend bool operator!=(const typename RedBlackTree<T, ValueType>::Node &lhs,
-                         const typename RedBlackTree<T, ValueType>::Node &rhs) {
-    return !(lhs == rhs);
-  }
-};
-
-template <typename T, typename ValueType>
-class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
- public:
-  RedBlackTreeIterator() noexcept {}
-  RedBlackTreeIterator(RedBlackTreeIterator &it) noexcept : ptr(it.ptr) {}
-  RedBlackTreeIterator(Node &node_ptr) noexcept : ptr(&node_ptr) {}
-  RedBlackTreeIterator(Node *node_ptr) noexcept : ptr(node_ptr) {}
-  ~RedBlackTreeIterator() noexcept {}
-
-  RedBlackTreeIterator &operator=(const RedBlackTreeIterator &other) noexcept {
-    ptr = other.ptr;
-    return *this;
-  }
-
-  bool operator==(const RedBlackTreeIterator &other) const noexcept {
-    return ptr == other.ptr;
-  }
-
-  bool operator==(Node *other) const noexcept { return ptr == other; }
-
-  bool operator!=(const RedBlackTreeIterator &other) const noexcept {
-    return ptr != other.ptr;
-  }
-
-  T operator*() { return ptr->value; }
-
-  RedBlackTreeIterator operator++() noexcept {
-    RedBlackTreeIterator it(*this);
-    ptr = next(ptr);
-    return it;
-  }
-
-  RedBlackTreeIterator &operator++(int) noexcept {
-    ptr = next(ptr);
-    return *this;
-  }
-
-  RedBlackTreeIterator operator--() noexcept {
-    RedBlackTreeIterator it(*this);
-    ptr = prev(*this);
-    return it;
-  }
-
-  RedBlackTreeIterator &operator--(int) noexcept {
-    ptr = prev(ptr);
-    return *this;
-  }
-
-  RedBlackTreeIterator &operator-=(const unsigned tmp) noexcept {
-    for (unsigned i = 0; i < tmp; i++) --(*this);
-    return *this;
-  }
-
-  RedBlackTreeIterator &operator+=(const unsigned tmp) noexcept {
-    for (unsigned i = 0; i < tmp; i++) ++(*this);
-    return *this;
-  }
-
- private:
-  Node *next(Node *root) noexcept {
-    if (!root->right->right && !root->right->left) {
-      Node *parent = root->parent;
-      while (parent) {
-        if (parent->key > root->key) {
-          return parent;
-        }
-        parent = parent->parent;
-      }
-      return nullptr;
-    }
-    Node *right = root->right;
-    while (right->left->left && right->left->right) right = right->left;
-    return right;
-  }
-
-  Node *prev(RedBlackTreeIterator &root) noexcept {
-    if (root.ptr->left == Node()) {
-      Node *parent = root.ptr->parent;
-      while (parent) {
-        if (parent->key < root.ptr->key) {
-          return parent;
-        }
-        parent = parent->parent;
-      }
-      return nullptr;
-    }
-    Node *left = root.ptr->left;
-    while (left->right) left = left->right;
-    return left;
-  }
-
-  Node *ptr;
 };
 
 template <typename T, typename ValueType>
@@ -501,5 +396,7 @@ void RedBlackTree<T, ValueType>::insert(T key) {
 
   insertFix(node);
 }
+
+#include "rb_tree_iterator.h"
 
 #endif

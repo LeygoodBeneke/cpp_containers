@@ -1,10 +1,11 @@
 #ifndef S21_SET_H
 #define S21_SET_H
 
-#include "../../utilities/rb_tree.h"
 #include <initializer_list>
-#include <iterator>
 #include <iostream>
+#include <iterator>
+
+#include "../../utilities/rb_tree.h"
 
 namespace s21 {
 
@@ -56,8 +57,8 @@ class set {
   }
 
   iterator end() {
-      iterator it(*rb.maximum(rb.getRoot()));
-      return it;
+    iterator it(*rb.maximum(rb.getRoot()));
+    return it;
   }
 
   constexpr inline bool empty() const noexcept { return _size == 0; }

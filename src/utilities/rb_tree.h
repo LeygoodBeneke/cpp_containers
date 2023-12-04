@@ -42,14 +42,17 @@ struct RedBlackTree<T, ValueType>::Node {
   Node *right;
   int color;
 
-  Node() : key(), value(), parent(nullptr), left(nullptr), right(nullptr), color(0) {}
+  Node()
+      : key(),
+        value(),
+        parent(nullptr),
+        left(nullptr),
+        right(nullptr),
+        color(0) {}
 
   bool operator==(Node *rhs) {
-    return value == rhs->value &&
-    parent == rhs->parent &&
-    left == rhs->left &&
-    right == rhs->right &&
-    color == rhs->color;
+    return value == rhs->value && parent == rhs->parent && left == rhs->left &&
+           right == rhs->right && color == rhs->color;
   }
 };
 
@@ -70,9 +73,7 @@ class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
     return ptr == other.ptr;
   }
 
-  bool operator==(Node *other) const noexcept {
-    return ptr == other;
-  }
+  bool operator==(Node *other) const noexcept { return ptr == other; }
 
   bool operator!=(const RedBlackTreeIterator &other) const noexcept {
     return ptr != other.ptr;
@@ -151,9 +152,9 @@ class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
 template <typename T, typename ValueType>
 RedBlackTree<T, ValueType>::RedBlackTree() {
   TNULL = new Node();
-//  TNULL->color = 0;
-//  TNULL->left = nullptr;
-//  TNULL->right = nullptr;
+  //  TNULL->color = 0;
+  //  TNULL->left = nullptr;
+  //  TNULL->right = nullptr;
   root = TNULL;
 }
 

@@ -24,8 +24,6 @@ class RedBlackTree {
   Node *searchTree(T k);
   Node *minimum(Node *node);
   Node *maximum(Node *node);
-  Node *successor(Node *x);
-  Node *predecessor(Node *x);
   Node *getNullNode();
   void leftRotate(Node *x);
   void rightRotate(Node *x);
@@ -268,35 +266,6 @@ typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::maximum(
     node = node->right;
   }
   return node;
-}
-
-template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *
-RedBlackTree<T, ValueType>::successor(Node *x) {
-  if (x->right != TNULL) {
-    return minimum(x->right);
-  }
-
-  Node *y = x->parent;
-  while (y != TNULL && x == y->right) {
-    x = y;
-    y = y->parent;
-  }
-  return y;
-}
-
-template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *
-RedBlackTree<T, ValueType>::predecessor(Node *x) {
-  if (x->left != TNULL) return maximum(x->left);
-
-  Node *y = x->parent;
-  while (y != TNULL && x == y->left) {
-    x = y;
-    y = y->parent;
-  }
-
-  return y;
 }
 
 template <typename T, typename ValueType>

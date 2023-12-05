@@ -19,10 +19,10 @@ class set {
   using const_reference = const value_type &;
   using size_type = std::size_t;
   using allocator = Allocator;
-  using iterator = typename RedBlackTree<Key>::RedBlackTreeIterator;
-  using const_iterator = const iterator;
+  using iterator = typename RedBlackTree<Key>::iterator;
+  using const_iterator = typename RedBlackTree<Key>::const_iterator;
 
-  explicit set() : rb(), _size(0) {}
+  explicit set() : rb() {}
 
   set(std::initializer_list<Key> const &items) {
     for (const auto item : items) {
@@ -44,13 +44,11 @@ class set {
 
   set(const set &&s) {
     rb = std::move(s.rb);
-    _size = std::move(s._size);
     alloc = std::move(s.alloc);
   }
 
   set(set &&s) {
     rb = std::move(s.rb);
-    _size = std::move(s._size);
     alloc = std::move(s.alloc);
   }
 
@@ -60,22 +58,15 @@ class set {
     clear();
     alloc = std::move(s.alloc);
     rb = std::move(s.rb);
-    _size = std::move(s._size);
   }
 
-  iterator begin() {
-    iterator it(rb.minimum(rb.getRoot()));
-    return it;
-  }
+  iterator begin() { return rb.begin(); }
+  iterator end() { return rb.end(); }
+  const_iterator begin() const { return rb.begin(); }
+  const_iterator end() const { return rb.end(); }
 
-  iterator end() {
-    iterator it(rb.maximum(rb.getRoot()));
-    it++;
-    return it;
-  }
-
-  constexpr inline bool empty() const noexcept { return _size == 0; }
-  constexpr inline size_type size() const noexcept { return _size; }
+  constexpr inline bool empty() const noexcept { return rb.empty(); }
+  constexpr inline size_type size() const noexcept { return rb.size(); }
   size_type max_size() const noexcept { return alloc.max_size(); }
 
   void clear() noexcept { rb.deleteNode(rb.getRoot()->value); }
@@ -86,9 +77,7 @@ class set {
     if (place == rb.getNullNode()) {
       placed = true;
       rb.insert(value);
-      _size++;
-      iterator new_place(*rb.searchTree(value));
-      place = new_place;
+      place = iterator(*rb.searchTree(value));
     }
     return std::pair<iterator, bool>(place, placed);
   }
@@ -96,13 +85,11 @@ class set {
   void erase(iterator pos) {
     value_type value = *pos;
     rb.deleteNode(value);
-    --_size;
   }
 
   void swap(set &other) noexcept {
     std::swap(alloc, other.alloc);
     std::swap(rb, other.rb);
-    std::swap(_size, other._size);
   }
 
   void merge(set &other) {
@@ -119,7 +106,6 @@ class set {
 
  private:
   RedBlackTree<Key> rb;
-  size_type _size;
   allocator alloc;
 
  public:

@@ -5,9 +5,9 @@ template <typename T, typename ValueType = T>
 class RedBlackTree {
  private:
   struct Node;
-
   Node *root;
   Node *TNULL;
+  unsigned _size = 0;
 
   Node *searchTreeHelper(Node *node, T key);
   void deleteFix(Node *x);
@@ -18,6 +18,9 @@ class RedBlackTree {
  public:
   class RedBlackTreeIterator;
   class RedBlackTreeConstIterator;
+
+  using iterator = RedBlackTreeIterator;
+  using const_iterator = RedBlackTreeConstIterator;
 
   RedBlackTree<T, ValueType>();
   ~RedBlackTree<T, ValueType>();
@@ -30,6 +33,13 @@ class RedBlackTree {
   void insert(T key);
   Node *getRoot() { return this->root; }
   void deleteNode(T key) { deleteNodeHelper(this->root, key); }
+
+  iterator begin() { return iterator(minimum(root)); }
+  const_iterator begin() const { return const_iterator(minimum(root)); }
+  iterator end() { return iterator(maximum(root))++; }
+  const_iterator end() const { return const_iterator(maximum(root))++; }
+  unsigned size() const noexcept { return _size; }
+  bool empty() const noexcept { return _size == 0; }
 };
 
 template <typename T, typename ValueType>
@@ -192,6 +202,7 @@ void RedBlackTree<T, ValueType>::deleteNodeHelper(Node *node, T key) {
     y->left->parent = y;
     y->color = z->color;
   }
+  _size--;
   delete z;
   if (y_original_color == 0) {
     deleteFix(x);
@@ -316,6 +327,7 @@ void RedBlackTree<T, ValueType>::rightRotate(Node *x) {
 template <typename T, typename ValueType>
 void RedBlackTree<T, ValueType>::insert(T key) {
   Node *node = new Node;
+  _size++;
   node->parent = nullptr;
   node->key = key;
   node->value = key;

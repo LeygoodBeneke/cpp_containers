@@ -22,7 +22,7 @@ class set {
   using iterator = typename RedBlackTree<Key>::RedBlackTreeIterator;
   using const_iterator = const iterator;
 
-  set() : rb(), _size(0) {}
+  explicit set() : rb(), _size(0) {}
 
   set(std::initializer_list<Key> const &items) {
     for (const auto item : items) {
@@ -34,6 +34,18 @@ class set {
     for (iterator it : s) {
       insert(*it);
     }
+  }
+
+  set(set &s) {
+    for (iterator it : s) {
+      insert(*it);
+    }
+  }
+
+  set(const set &&s) {
+    rb = std::move(s.rb);
+    _size = std::move(s._size);
+    alloc = std::move(s.alloc);
   }
 
   set(set &&s) {

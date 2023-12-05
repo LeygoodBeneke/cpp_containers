@@ -1,7 +1,6 @@
 #ifndef RB_TREE_H
 #define RB_TREE_H
 
-
 template <typename T, typename ValueType = T>
 class RedBlackTree {
  private:
@@ -10,7 +9,6 @@ class RedBlackTree {
   Node *root;
   Node *TNULL;
 
-  void initializeNULLNode(Node *node, Node *parent);
   Node *searchTreeHelper(Node *node, T key);
   void deleteFix(Node *x);
   void rbTransplant(Node *u, Node *v);
@@ -19,6 +17,7 @@ class RedBlackTree {
 
  public:
   class RedBlackTreeIterator;
+  class RedBlackTreeConstIterator;
 
   RedBlackTree<T, ValueType>();
   ~RedBlackTree<T, ValueType>();
@@ -39,9 +38,7 @@ template <typename T, typename ValueType>
 struct RedBlackTree<T, ValueType>::Node {
   T key;
   ValueType value;
-  Node *parent;
-  Node *left;
-  Node *right;
+  Node *parent, *left, *right;
   int color;
 
   Node()
@@ -50,7 +47,7 @@ struct RedBlackTree<T, ValueType>::Node {
         parent(nullptr),
         left(nullptr),
         right(nullptr),
-        color(0) {}
+        color() {}
 };
 
 template <typename T, typename ValueType>
@@ -63,15 +60,6 @@ template <typename T, typename ValueType>
 RedBlackTree<T, ValueType>::~RedBlackTree() {
   while (root != TNULL) deleteNode(root->key);
   delete TNULL;
-}
-
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::initializeNULLNode(Node *node, Node *parent) {
-  node->key = {};
-  node->parent = parent;
-  node->left = nullptr;
-  node->right = nullptr;
-  node->color = 0;
 }
 
 template <typename T, typename ValueType>
@@ -397,6 +385,7 @@ void RedBlackTree<T, ValueType>::insert(T key) {
   insertFix(node);
 }
 
+#include "rb_tree_const_iterator.h"
 #include "rb_tree_iterator.h"
 
 #endif

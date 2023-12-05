@@ -2,7 +2,7 @@
 
 TEST(InitialSet, Subtest_1) {
   s21::set<int> sss;
-  const int a = 2;
+  int a = 2;
   sss.insert(a);
 }
 

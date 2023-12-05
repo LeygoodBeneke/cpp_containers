@@ -10,14 +10,14 @@
 
 namespace s21 {
 template <typename T, typename A = std::allocator<T>>
-class list {
+class List {
  public:
   using value_type = T;
   using reference = value_type &;
   using pointer = value_type *;
   using const_reference = const value_type &;
   using size_type = std::size_t;
-  using allocator = A;
+  using allocator_type = A;
 
  private:
   struct Node {
@@ -27,14 +27,14 @@ class list {
   };
 
   using node_allocator =
-      typename std::allocator_traits<allocator>::template rebind_alloc<Node>;
+      typename std::allocator_traits<allocator_type>::template rebind_alloc<Node>;
 
  public:
   class ListIterator {
    public:
     using iterator_category = std::bidirectional_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    friend class list;
+    friend class List;
     friend class ListConstIterator;
 
     ListIterator() noexcept {}
@@ -97,7 +97,7 @@ class list {
    public:
     using iterator_category = std::bidirectional_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    friend class list;
+    friend class List;
     friend class ListIterator;
 
     ListConstIterator() noexcept {}
@@ -152,7 +152,7 @@ class list {
   friend iterator;
 
  private:
-  allocator alloc_;
+  allocator_type alloc_;
   node_allocator node_alloc_;
   size_type sz_;
 
@@ -160,7 +160,7 @@ class list {
   Node *end_;
 
  public:
-  list(const allocator &alloc = allocator()) try
+  List(const allocator_type &alloc = allocator_type()) try
       : alloc_(alloc), sz_(0), end_(create_end()) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
@@ -168,7 +168,7 @@ class list {
     throw;
   }
 
-  explicit list(size_type n, const allocator &alloc = allocator()) try
+  explicit List(size_type n, const allocator_type &alloc = allocator_type()) try
       : alloc_(alloc), sz_(0), end_(create_end()) {
     insert(end(), n);
   } catch (std::bad_alloc &t) {
@@ -178,7 +178,7 @@ class list {
   }
 
   template <class InputIt>
-  list(InputIt first, InputIt last, const allocator &alloc = allocator()) try
+  List(InputIt first, InputIt last, const allocator_type &alloc = allocator_type()) try
       : alloc_(alloc), sz_(0), end_(create_end()) {
     for (; first != last; ++first) push_back(*first);
   } catch (std::bad_alloc &t) {
@@ -187,8 +187,8 @@ class list {
     throw;
   }
 
-  list(std::initializer_list<value_type> const &items,
-       const allocator &alloc = allocator()) try
+  List(std::initializer_list<value_type> const &items,
+       const allocator_type &alloc = allocator_type()) try
       : alloc_(alloc), sz_(0), end_(create_end()) {
     for (const_reference item : items) push_back(item);
   } catch (std::bad_alloc &t) {
@@ -197,17 +197,16 @@ class list {
     throw;
   }
 
-  list(const list &l) try : alloc_(l.alloc_), sz_(0), end_(create_end()) {
-    for (const_iterator it = l.begin(); it != l.end(); ++it) {
+  List(const List &l) try : alloc_(l.alloc_), sz_(0), end_(create_end()) {
+    for (const_iterator it = l.begin(); it != l.end(); ++it)
       push_back(*it);
-    }
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     clear();
     throw;
   }
 
-  list(list &&l) try : alloc_(allocator()), sz_(0), end_(create_end()) {
+  List(List &&l) try : alloc_(allocator_type()), sz_(0), end_(create_end()) {
     swap(l);
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
@@ -215,12 +214,12 @@ class list {
     throw;
   }
 
-  ~list() noexcept {
+  ~List() noexcept {
     clear();
     node_alloc_.deallocate(end_, 1);
   }
 
-  list &operator=(list &&l) {
+  List &operator=(List &&l) {
     if (l != *this) swap(l);
     return *this;
   }
@@ -313,14 +312,14 @@ class list {
     return tmp;
   }
 
-  void swap(list &other) noexcept {
+  void swap(List &other) noexcept {
     std::swap(end_, other.end_);
     std::swap(sz_, other.sz_);
     std::swap(alloc_, other.alloc_);
     std::swap(node_alloc_, other.node_alloc_);
   }
 
-  void merge(list &other) {
+  void merge(List &other) {
     if (alloc_ != other.alloc_)
       throw std::invalid_argument("The behavior is undefined");
     if (this != &other && other.sz_) {
@@ -341,7 +340,7 @@ class list {
     }
   }
 
-  void splice(iterator pos, list &other) {
+  void splice(iterator pos, List &other) {
     if (alloc_ != other.alloc_)
       throw std::invalid_argument("The behavior is undefined");
     if (other.sz_) {
@@ -398,8 +397,8 @@ class list {
   }
 
   /*** NON MEMBER ***/
-  friend bool operator==(const s21::list<value_type, allocator> &lhs,
-                         const s21::list<value_type, allocator> &rhs) {
+  friend bool operator==(const s21::List<value_type, allocator_type> &lhs,
+                         const s21::List<value_type, allocator_type> &rhs) {
     if (lhs.size() != rhs.size())
       return false;
     else {

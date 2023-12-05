@@ -4,8 +4,8 @@
 #include "../list/s21_list.hpp"
 
 namespace s21 {
-template <typename T, class Container = s21::list<T>>
-class stack {
+template <typename T, class Container = s21::List<T>>
+class Stack {
   using value_type = T;
   using reference = value_type &;
   using const_reference = const value_type &;
@@ -13,34 +13,34 @@ class stack {
   using container_type = Container;
 
  public:
-  stack() try : container_(Container()) {
+  Stack() try : container_(Container()) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  stack(std::initializer_list<value_type> const &items) try
+  Stack(std::initializer_list<value_type> const &items) try
       : container_(container_type(items)) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  stack(const stack &s) try : container_(container_type(s.container_)) {
+  Stack(const Stack &s) try : container_(container_type(s.container_)) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  stack(stack &&s) try : container_(container_type(s.container_)) {
+  Stack(Stack &&s) try : container_(container_type(s.container_)) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  ~stack() {}
+  ~Stack() {}
 
-  stack &operator=(stack &&s) {
+  Stack &operator=(Stack &&s) {
     if (s != *this) swap(s);
     return *this;
   }
@@ -61,16 +61,16 @@ class stack {
   }
 
   void pop() { container_.pop_back(); }
-  void swap(stack &other) noexcept { container_.swap(other.container_); }
+  void swap(Stack &other) noexcept { container_.swap(other.container_); }
 
   template <class... Args>
   void insert_many_front(Args &&...args) {
-    s21::list<T> it = container_.begin();
+    s21::List<T> it = container_.begin();
     for (const auto &arg : {args...}) insert(it, arg);
   }
 
   /*** NON-MEMBER ***/
-  friend bool operator==(const stack &lhs, const stack &rhs) {
+  friend bool operator==(const Stack &lhs, const Stack &rhs) {
     return lhs.container_ == rhs.container_;
   }
 

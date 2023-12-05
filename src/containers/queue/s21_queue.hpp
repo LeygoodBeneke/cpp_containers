@@ -4,8 +4,8 @@
 #include "../list/s21_list.hpp"
 
 namespace s21 {
-template <typename T, class Container = s21::list<T>>
-class queue {
+template <typename T, class Container = s21::List<T>>
+class Queue {
   using value_type = T;
   using reference = value_type &;
   using const_reference = const value_type &;
@@ -13,34 +13,34 @@ class queue {
   using container_type = Container;
 
  public:
-  queue() try : container_(container_type()) {
+  Queue() try : container_(container_type()) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  queue(std::initializer_list<value_type> const &items) try
+  Queue(std::initializer_list<value_type> const &items) try
       : container_(container_type(items)) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  queue(const queue &q) try : container_(q.container_) {
+  Queue(const Queue &q) try : container_(q.container_) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  queue(queue &&q) try : container_(q.container_) {
+  Queue(Queue &&q) try : container_(q.container_) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     throw;
   }
 
-  ~queue() {}
+  ~Queue() {}
 
-  queue &operator=(queue &&q) {
+  Queue &operator=(Queue &&q) {
     if (q != *this) swap(q);
     return *this;
   }
@@ -63,7 +63,7 @@ class queue {
   }
 
   void pop() { container_.pop_front(); }
-  void swap(queue &other) noexcept { container_.swap(other.container_); }
+  void swap(Queue &other) noexcept { container_.swap(other.container_); }
 
   template <class... Args>
   void insert_many_back(Args &&...args) {
@@ -71,7 +71,7 @@ class queue {
   }
 
   /*** NON-MEMBER ***/
-  friend bool operator==(const queue &lhs, const queue &rhs) {
+  friend bool operator==(const Queue &lhs, const Queue &rhs) {
     return lhs.container_ == rhs.container_;
   }
 

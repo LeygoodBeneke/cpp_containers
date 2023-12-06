@@ -28,62 +28,65 @@ struct array {
   array(std::initializer_list<value_type> const &items) {
     size_type i = 0;
     for (auto item : items) {
-      data_[i++] = item;
+      data[i++] = item;
     }
   }
-
-  ~array() = default;
   array &operator=(const array &) = default;
   array &operator=(array &&) = default;
+  ~array() = default;
 
   constexpr reference at(size_type pos) {
-    if (pos >= size()) throw std::out_of_range("Invalid position in the array");
-    return data_[pos];
+    CheckPos(pos);
+    return data[pos];
   }
   constexpr const_reference at(size_type pos) const {
-    if (pos >= size()) throw std::out_of_range("Invalid position in the array");
-    return data_[pos];
+    CheckPos(pos);
+    return data[pos];
   }
 
-  reference operator[](size_type pos) { return data_[pos]; }
+  reference operator[](size_type pos) { return data[pos]; }
 
   reference front() { return *begin(); }
-  reference back() { return *(data_ + N - 1); }
+  reference back() { return *(data + N - 1); }
   constexpr const_reference front() const { return *begin(); }
-  constexpr const_reference back() const { return *(data_ + N - 1); }
+  constexpr const_reference back() const { return *(data + N - 1); }
 
-  constexpr iterator data() noexcept { return data_; }
-  constexpr const_iterator data() const noexcept { return data_; }
+  constexpr iterator data() noexcept { return data; }
+  constexpr const_iterator data() const noexcept { return data; }
 
-  iterator begin() noexcept { return data_; }
-  iterator end() noexcept { return data_ + N; }
-  const_iterator begin() const noexcept { return data_; }
-  const_iterator end() const noexcept { return data_ + N; }
+  iterator begin() noexcept { return data; }
+  iterator end() noexcept { return data + N; }
+  const_iterator begin() const noexcept { return data; }
+  const_iterator end() const noexcept { return data + N; }
 
   constexpr bool empty() const noexcept { return begin() == end(); }
   constexpr size_type size() const noexcept { return end() - begin(); }
   constexpr size_type max_size() const noexcept { return size(); }
 
   void swap(array &other) {
-    for (size_type i = 0; i < size(); ++i) std::swap(data_[i], other.data_[i]);
+    for (size_type i = 0; i < size(); ++i) std::swap(data[i], other.data[i]);
   }
 
   void fill(const_reference value) {
-    for (size_type i = 0; i < size(); ++i) data_[i] = value;
+    for (size_type i = 0; i < size(); ++i) data[i] = value;
   }
 
   /*** NON MEMBER ***/
   friend bool operator==(const array<T, N> &lhs, const array<T, N> &rhs) {
     for (size_t i = 0; i < N; ++i) {
-      if (lhs.data_[i] != rhs.data_[i]) {
+      if (lhs.data[i] != rhs.data[i]) {
         return false;
       }
     }
     return true;
   }
 
- private:
-  value_type data_[N]{};
+  value_type data[N]{};
+
+  /*** UTILS ***/
+  void CheckPos(size_type pos) {
+    if (pos >= size()) throw std::out_of_range("Invalid position in the array");
+  }
 };
 
 // partial specialisation for zero-size array
@@ -100,38 +103,38 @@ struct array<T, 0> {
 
   constexpr reference at(size_type pos) {
     std::terminate();
-    return data_;
+    return data;
   }
   constexpr const_reference at(size_type pos) const {
     std::terminate();
-    return data_;
+    return data;
   }
 
   reference operator[](size_type pos) {
-    throw_zero();
-    return data_;
+    ThrowZero();
+    return data;
   }
 
   reference front() {
-    throw_zero();
-    return data_;
+    ThrowZero();
+    return data;
   }
   reference back() {
-    throw_zero();
-    return data_;
+    ThrowZero();
+    return data;
   }
   constexpr const_reference front() const {
     std::terminate();
-    return data_;
+    return data;
   }
   constexpr const_reference back() const {
     std::terminate();
-    return data_;
+    return data;
   }
 
   constexpr iterator data() noexcept {
     std::terminate();
-    return data_;
+    return data;
   }
   constexpr const_iterator data() const noexcept { return nullptr; }
 
@@ -144,15 +147,14 @@ struct array<T, 0> {
   constexpr size_type size() const noexcept { return 0; }
   constexpr size_type max_size() const noexcept { return 0; }
 
-  void swap(array &other) { std::swap(data_, other.data_); }
+  void swap(array &other) { std::swap(data, other.data); }
 
-  void fill(const_reference value) { throw_zero(); }
+  void fill(const_reference value) { ThrowZero(); }
 
- private:
-  value_type data_[1]{};
+  value_type data[1]{};
 
   /*** UTILS ***/
-  void throw_zero() {
+  void ThrowZero() {
     throw std::out_of_range("Undefined Behavior: Zero size array");
   }
 };

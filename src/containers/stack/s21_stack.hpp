@@ -4,8 +4,8 @@
 #include "../list/s21_list.hpp"
 
 namespace s21 {
-template <typename T, class Container = s21::List<T>>
-class Stack {
+template <typename T, class Container = s21::list<T>>
+class stack {
   using value_type = T;
   using reference = value_type &;
   using const_reference = const value_type &;
@@ -13,37 +13,16 @@ class Stack {
   using container_type = Container;
 
  public:
-  Stack() try : container_(Container()) {
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    throw;
-  }
-
-  Stack(std::initializer_list<value_type> const &items) try
-      : container_(container_type(items)) {
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    throw;
-  }
-
-  Stack(const Stack &s) try : container_(container_type(s.container_)) {
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    throw;
-  }
-
-  Stack(Stack &&s) try : container_(container_type(s.container_)) {
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    throw;
-  }
-
-  ~Stack() {}
-
-  Stack &operator=(Stack &&s) {
+  stack() : container_(container_type()) {}
+  stack(std::initializer_list<value_type> const &items)
+      : container_(container_type(items)) {}
+  stack(const stack &s) : container_(container_type(s.container_)) {}
+  stack(stack &&s) : container_(container_type()) { swap(s); }
+  stack &operator=(stack &&s) {
     if (s != *this) swap(s);
     return *this;
   }
+  ~stack() {}
 
   reference top() { return container_.back(); }
   const_reference top() const { return container_.back(); }
@@ -61,16 +40,16 @@ class Stack {
   }
 
   void pop() { container_.pop_back(); }
-  void swap(Stack &other) noexcept { container_.swap(other.container_); }
+  void swap(stack &other) noexcept { container_.swap(other.container_); }
 
   template <class... Args>
   void insert_many_front(Args &&...args) {
-    s21::List<T> it = container_.begin();
-    for (const auto &arg : {args...}) insert(it, arg);
+    typename s21::list<T>::ListIterator it = container_.begin();
+    for (const auto &arg : {args...}) container_.insert(it, arg);
   }
 
   /*** NON-MEMBER ***/
-  friend bool operator==(const Stack &lhs, const Stack &rhs) {
+  friend bool operator==(const stack &lhs, const stack &rhs) {
     return lhs.container_ == rhs.container_;
   }
 

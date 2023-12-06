@@ -10,44 +10,42 @@
 
 namespace s21 {
 template <typename T, typename A = std::allocator<T>>
-class List {
+class list {
  public:
-  using value_type = T;
-  using reference = value_type &;
-  using pointer = value_type *;
-  using const_reference = const value_type &;
+  using valuetype = T;
+  using reference = valuetype &;
+  using pointer = valuetype *;
+  using const_reference = const valuetype &;
   using size_type = std::size_t;
   using allocator_type = A;
 
  private:
   struct Node {
-    value_type value_;
-    Node *next_;
-    Node *prev_;
+    valuetype value;
+    Node *next;
+    Node *prev;
   };
 
-  using node_allocator =
-      typename std::allocator_traits<allocator_type>::template rebind_alloc<Node>;
+  using node_allocator = typename std::allocator_traits<
+      allocator_type>::template rebind_alloc<Node>;
 
  public:
   class ListIterator {
    public:
     using iterator_category = std::bidirectional_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    friend class List;
-    friend class ListConstIterator;
+    friend class list;
 
     ListIterator() noexcept {}
     ListIterator(const ListIterator &it) noexcept : ptr_(it.ptr_) {}
     ListIterator(Node *node) noexcept : ptr_(node) {}
-    ~ListIterator() {}
-
     ListIterator &operator=(const ListIterator &other) {
       if (&other != this) {
         ptr_ = other.ptr_;
       }
       return *this;
     }
+    ~ListIterator() {}
 
     bool operator==(const ListIterator &other) noexcept {
       return ptr_ == other.ptr_;
@@ -55,15 +53,15 @@ class List {
     bool operator!=(const ListIterator &other) const noexcept {
       return ptr_ != other.ptr_;
     }
-    reference operator*() const noexcept { return ptr_->value_; }
-    pointer operator->() const noexcept { return &(ptr_->value_); }
+    reference operator*() const noexcept { return ptr_->value; }
+    pointer operator->() const noexcept { return &(ptr_->value); }
 
     ListIterator &operator++() noexcept {
-      ptr_ = ptr_->next_;
+      ptr_ = ptr_->next;
       return *this;
     }
     ListIterator &operator--() noexcept {
-      ptr_ = ptr_->prev_;
+      ptr_ = ptr_->prev;
       return *this;
     }
 
@@ -97,30 +95,28 @@ class List {
    public:
     using iterator_category = std::bidirectional_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    friend class List;
-    friend class ListIterator;
+    friend class list;
 
     ListConstIterator() noexcept {}
     ListConstIterator(const ListConstIterator &it) noexcept : ptr_(it.ptr_) {}
     ListConstIterator(const ListIterator &it) noexcept : ptr_(it.ptr_) {}
     ListConstIterator(const Node *node) noexcept : ptr_(node) {}
-    ~ListConstIterator() {}
-
     ListConstIterator &operator=(const ListConstIterator &other) {
       if (&other != this) {
         ptr_ = other.ptr_;
       }
       return *this;
     }
+    ~ListConstIterator() {}
 
-    const_reference operator*() { return ptr_->value_; }
+    const_reference operator*() { return ptr_->value; }
     ListConstIterator &operator++() {
-      ptr_ = ptr_->next_;
+      ptr_ = ptr_->next;
       return *this;
     }
 
     ListConstIterator &operator--() {
-      ptr_ = ptr_->prev_;
+      ptr_ = ptr_->prev;
       return *this;
     }
     ListConstIterator operator++(int) noexcept {
@@ -149,79 +145,45 @@ class List {
 
   using iterator = ListIterator;
   using const_iterator = ListConstIterator;
-  friend iterator;
-
- private:
-  allocator_type alloc_;
-  node_allocator node_alloc_;
-  size_type sz_;
-
-  // 1st item (if it exists) is at end_->next_, the last one is at end_->prev_
-  Node *end_;
 
  public:
-  List(const allocator_type &alloc = allocator_type()) try
-      : alloc_(alloc), sz_(0), end_(create_end()) {
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
-  }
+  list(const allocator_type &alloc = allocator_type())
+      : alloc_(alloc), sz_(0), end_(CreateEnd()) {}
 
-  explicit List(size_type n, const allocator_type &alloc = allocator_type()) try
-      : alloc_(alloc), sz_(0), end_(create_end()) {
+  explicit list(size_type n, const allocator_type &alloc = allocator_type())
+      : alloc_(alloc), sz_(0), end_(CreateEnd()) {
     insert(end(), n);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
   }
 
   template <class InputIt>
-  List(InputIt first, InputIt last, const allocator_type &alloc = allocator_type()) try
-      : alloc_(alloc), sz_(0), end_(create_end()) {
+  list(InputIt first, InputIt last,
+       const allocator_type &alloc = allocator_type())
+      : alloc_(alloc), sz_(0), end_(CreateEnd()) {
     for (; first != last; ++first) push_back(*first);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
   }
 
-  List(std::initializer_list<value_type> const &items,
-       const allocator_type &alloc = allocator_type()) try
-      : alloc_(alloc), sz_(0), end_(create_end()) {
+  list(std::initializer_list<valuetype> const &items,
+       const allocator_type &alloc = allocator_type())
+      : alloc_(alloc), sz_(0), end_(CreateEnd()) {
     for (const_reference item : items) push_back(item);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
   }
 
-  List(const List &l) try : alloc_(l.alloc_), sz_(0), end_(create_end()) {
-    for (const_iterator it = l.begin(); it != l.end(); ++it)
-      push_back(*it);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
+  list(const list &l) : alloc_(l.alloc_), sz_(0), end_(CreateEnd()) {
+    for (const_iterator it = l.begin(); it != l.end(); ++it) push_back(*it);
   }
 
-  List(List &&l) try : alloc_(allocator_type()), sz_(0), end_(create_end()) {
+  list(list &&l) : alloc_(allocator_type()), sz_(0), end_(CreateEnd()) {
     swap(l);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
   }
 
-  ~List() noexcept {
-    clear();
-    node_alloc_.deallocate(end_, 1);
-  }
-
-  List &operator=(List &&l) {
+  list &operator=(list &&l) {
     if (l != *this) swap(l);
     return *this;
+  }
+
+  ~list() noexcept {
+    clear();
+    node_alloc_.deallocate(end_, 1);
   }
 
   void clear() noexcept {
@@ -233,16 +195,16 @@ class List {
   reference back() { return *(--end()); }
   const_reference back() const { return *(--end()); }
 
-  iterator begin() { return iterator(end_->next_); }
-  const_iterator begin() const { return const_iterator(end_->next_); }
+  iterator begin() { return iterator(end_->next); }
+  const_iterator begin() const { return const_iterator(end_->next); }
   iterator end() { return iterator(end_); }
   const_iterator end() const { return const_iterator(end_); }
 
-  void push_back(const_reference value = value_type{}) { insert(end(), value); }
+  void push_back(const_reference value = valuetype{}) { insert(end(), value); }
   void pop_back() {
     if (sz_) erase(--end());
   }
-  void push_front(const_reference value = value_type{}) {
+  void push_front(const_reference value = valuetype{}) {
     insert(begin(), value);
   }
   void pop_front() {
@@ -254,22 +216,22 @@ class List {
   size_type max_size() const noexcept { return alloc_.max_size(); }
 
   iterator insert(iterator pos, const_reference value) {
-    Node *new_node = create_node(value);
-    new_node->next_ = pos.ptr_;
-    if (pos.ptr_->prev_ == end_) {
-      new_node->prev_ = end_;
-      end_->next_ = new_node;
+    Node *new_node = CreateNode(value);
+    new_node->next = pos.ptr_;
+    if (pos.ptr_->prev == end_) {
+      new_node->prev = end_;
+      end_->next = new_node;
     } else {
-      new_node->prev_ = pos.ptr_->prev_;
-      pos.ptr_->prev_->next_ = new_node;
+      new_node->prev = pos.ptr_->prev;
+      pos.ptr_->prev->next = new_node;
     }
-    pos.ptr_->prev_ = new_node;
+    pos.ptr_->prev = new_node;
     ++sz_;
     return (iterator(--pos));
   }
 
   iterator insert(iterator pos, size_type count,
-                  const_reference value = value_type{}) {
+                  const_reference value = valuetype{}) {
     while (count--) insert(pos, value);
     return begin();
   }
@@ -296,32 +258,31 @@ class List {
 
   iterator erase(iterator pos) {
     if (pos == end()) throw std::out_of_range("Cannot erase the end iterator");
-    iterator tmp(pos.ptr_->next_);
-    if (pos.ptr_->prev_ == end_) {
-      end_->next_ = pos.ptr_->next_;
+    iterator tmp(pos.ptr_->next);
+    if (pos.ptr_->prev == end_) {
+      end_->next = pos.ptr_->next;
     } else {
-      pos.ptr_->prev_->next_ = pos.ptr_->next_;
+      pos.ptr_->prev->next = pos.ptr_->next;
     }
-    if (pos.ptr_->next_ == end_) {
-      end_->prev_ = pos.ptr_->prev_;
+    if (pos.ptr_->next == end_) {
+      end_->prev = pos.ptr_->prev;
     } else {
-      pos.ptr_->next_->prev_ = pos.ptr_->prev_;
+      pos.ptr_->next->prev = pos.ptr_->prev;
     }
     node_alloc_.deallocate(pos.ptr_, 1);
     --sz_;
     return tmp;
   }
 
-  void swap(List &other) noexcept {
+  void swap(list &other) noexcept {
     std::swap(end_, other.end_);
     std::swap(sz_, other.sz_);
     std::swap(alloc_, other.alloc_);
     std::swap(node_alloc_, other.node_alloc_);
   }
 
-  void merge(List &other) {
-    if (alloc_ != other.alloc_)
-      throw std::invalid_argument("The behavior is undefined");
+  void merge(list &other) {
+    CheckAllocator(other);
     if (this != &other && other.sz_) {
       iterator it = begin();
       iterator jt = other.begin();
@@ -340,33 +301,32 @@ class List {
     }
   }
 
-  void splice(iterator pos, List &other) {
-    if (alloc_ != other.alloc_)
-      throw std::invalid_argument("The behavior is undefined");
+  void splice(iterator pos, list &other) {
+    CheckAllocator(other);
     if (other.sz_) {
       iterator it = other.end();
-      it.ptr_->next_->prev_ = pos.ptr_->prev_;
-      it.ptr_->prev_->next_ = pos.ptr_;
+      it.ptr_->next->prev = pos.ptr_->prev;
+      it.ptr_->prev->next = pos.ptr_;
 
-      pos.ptr_->prev_->next_ = it.ptr_->next_;
-      pos.ptr_->prev_ = it.ptr_->prev_;
+      pos.ptr_->prev->next = it.ptr_->next;
+      pos.ptr_->prev = it.ptr_->prev;
 
       sz_ += other.sz_;
       other.sz_ = 0;
-      other.end_->next_ = it.ptr_;
-      other.end_->prev_ = it.ptr_;
+      other.end_->next = it.ptr_;
+      other.end_->prev = it.ptr_;
     }
   }
 
   void reverse() noexcept {
-    Node *cur = end_->next_;
+    Node *cur = end_->next;
     Node *tmp;
-    end_->next_ = end_->prev_;
-    end_->prev_ = cur;
+    end_->next = end_->prev;
+    end_->prev = cur;
     while (cur != end_) {
-      tmp = cur->next_;
-      cur->next_ = cur->prev_;
-      cur->prev_ = tmp;
+      tmp = cur->next;
+      cur->next = cur->prev;
+      cur->prev = tmp;
       cur = tmp;
     }
   }
@@ -374,7 +334,7 @@ class List {
   void unique() {
     iterator it = begin();
     while (it != end()) {
-      value_type val = *it;
+      valuetype val = *it;
       iterator next = it;
       ++next;
       if (next != end() && *next == val) {
@@ -386,19 +346,19 @@ class List {
   }
 
   void sort() {
-    if (sz_) end_->next_ = merge_sort(end_->next_);
-    Node *tmp = end_->next_;
+    if (sz_) end_->next = MergeSort(end_->next);
+    Node *tmp = end_->next;
     Node *prev;
     while (tmp != end_) {
       prev = tmp;
-      tmp = tmp->next_;
+      tmp = tmp->next;
     }
-    end_->prev_ = prev;
+    end_->prev = prev;
   }
 
   /*** NON MEMBER ***/
-  friend bool operator==(const s21::List<value_type, allocator_type> &lhs,
-                         const s21::List<value_type, allocator_type> &rhs) {
+  friend bool operator==(const s21::list<valuetype, allocator_type> &lhs,
+                         const s21::list<valuetype, allocator_type> &rhs) {
     if (lhs.size() != rhs.size())
       return false;
     else {
@@ -411,52 +371,63 @@ class List {
     return true;
   }
 
-  /*** UTILS ***/
  private:
-  Node *create_node(const_reference value = value_type{}) {
+  allocator_type alloc_;
+  node_allocator node_alloc_;
+  size_type sz_;
+  // 1st item (if it exists) is at end_->next, the last one is at end_->prev
+  Node *end_;
+
+  /*** UTILS ***/
+  Node *CreateNode(const_reference value = valuetype{}) {
     Node *node = node_alloc_.allocate(1);
-    node_alloc_.construct(&node->value_, value);
+    node_alloc_.construct(&node->value, value);
     return node;
   }
 
-  Node *create_end() {
-    Node *end = create_node();
-    end->prev_ = end;
-    end->next_ = end;
+  Node *CreateEnd() {
+    Node *end = CreateNode();
+    end->prev = end;
+    end->next = end;
     return end;
   }
 
-  Node *split(Node *src) {
+  Node *Split(Node *src) {
     Node *fast = src;
     Node *slow = src;
-    while (fast->next_ != end_ && fast->next_->next_ != end_) {
-      fast = fast->next_->next_;
-      slow = slow->next_;
+    while (fast->next != end_ && fast->next->next != end_) {
+      fast = fast->next->next;
+      slow = slow->next;
     }
-    Node *back_ref = slow->next_;
-    slow->next_ = end_;
+    Node *back_ref = slow->next;
+    slow->next = end_;
     return back_ref;
   }
 
-  Node *merge_sort(Node *head_ref) {
-    if (head_ref == end_ || head_ref->next_ == end_) return head_ref;
-    Node *second = split(head_ref);
-    return sorted_merge(merge_sort(head_ref), merge_sort(second));
+  void CheckAllocator(list &other) {
+    if (alloc_ != other.alloc_)
+      throw std::invalid_argument("The behavior is undefined");
   }
 
-  Node *sorted_merge(Node *first, Node *second) {
+  Node *MergeSort(Node *head_ref) {
+    if (head_ref == end_ || head_ref->next == end_) return head_ref;
+    Node *second = Split(head_ref);
+    return SortedMerge(MergeSort(head_ref), MergeSort(second));
+  }
+
+  Node *SortedMerge(Node *first, Node *second) {
     if (first == end_) return second;
     if (second == end_) return first;
 
-    if (first->value_ <= second->value_) {
-      first->next_ = sorted_merge(first->next_, second);
-      first->next_->prev_ = first;
-      first->prev_ = end_;
+    if (first->value <= second->value) {
+      first->next = SortedMerge(first->next, second);
+      first->next->prev = first;
+      first->prev = end_;
       return first;
     } else {
-      second->next_ = sorted_merge(first, second->next_);
-      second->next_->prev_ = second;
-      second->prev_ = end_;
+      second->next = SortedMerge(first, second->next);
+      second->next->prev = second;
+      second->prev = end_;
       return second;
     }
   }

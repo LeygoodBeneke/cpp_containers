@@ -11,7 +11,7 @@
 
 namespace s21 {
 template <typename Key, typename T, typename A = std::allocator<std::pair<const Key, T>>>
-class Map {
+class map {
   public:
   using key_type = Key;
   using mapped_type = T;
@@ -27,7 +27,7 @@ class Map {
   using iterator = typename tree_type::RedBlackTreeIterator;
   using const_iterator = typename tree_type::RedBlackTreeConstIterator;
 
-  Map(const allocator_type &alloc = allocator_type()) try : alloc_(alloc), rb_tree_(tree_alloc_.allocate(1)) {
+  map(const allocator_type &alloc = allocator_type()) try : alloc_(alloc), rb_tree_(tree_alloc_.allocate(1)) {
   } catch (std::bad_alloc &t) {
     std::cerr << t.what() << std::endl;
     clear();
@@ -69,8 +69,8 @@ class Map {
     return *this;
   }
 
-  reference at(const Key& key);
-  reference operator[](const Key& key);
+  mapped_type& at(const key_type& key); //нужен throw
+  mapped_type& operator[](const key_type& key);
   iterator begin();
   iterator end();
 
@@ -87,12 +87,12 @@ class Map {
     return rb_tree_.insert(value);
   }
 
-  std::pair<iterator, bool> insert(const Key& key, const T& obj) {
+  std::pair<iterator, bool> insert(const key_type& key, const mapped_type& obj) {
     value_type value = std::make_pair(key, obj);
     return rb_tree_.insert(value);
   }
 
-  std::pair<iterator, bool> insert_or_assign(const Key& key, const T& obj) {
+  std::pair<iterator, bool> insert_or_assign(const key_type& key, const mapped_type& obj) {
     //вставка или замена значения по ключу
   }
   

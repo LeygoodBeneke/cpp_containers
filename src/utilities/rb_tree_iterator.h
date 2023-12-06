@@ -1,11 +1,11 @@
 #ifndef RB_TREE_ITERATOR
 #define RB_TREE_ITERATOR
 
-template <typename T, typename ValueType>
+template <typename T, typename ValueType, typename Allocator>
 class RedBlackTree;
 
-template <typename T, typename ValueType>
-class RedBlackTree<T, ValueType>::RedBlackTreeIterator {
+template <typename T, typename ValueType, typename Allocator>
+class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
  public:
   RedBlackTreeIterator() noexcept {}
   RedBlackTreeIterator(RedBlackTreeIterator &it) noexcept : ptr(it.ptr) {}

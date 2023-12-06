@@ -1,13 +1,21 @@
 #ifndef RB_TREE_H
 #define RB_TREE_H
 
-template <typename T, typename ValueType = T>
+#include <memory>
+
+template <typename T, typename ValueType = T,
+          typename Allocator = std::allocator<T>>
 class RedBlackTree {
  private:
   struct Node;
   Node *root;
   Node *TNULL;
   unsigned _size = 0;
+
+  using node_allocator =
+      typename std::allocator_traits<Allocator>::template rebind_alloc<Node>;
+
+  node_allocator node_alloc;
 
   Node *searchTreeHelper(Node *node, T key);
   void deleteFix(Node *x);
@@ -22,8 +30,8 @@ class RedBlackTree {
   using iterator = RedBlackTreeIterator;
   using const_iterator = RedBlackTreeConstIterator;
 
-  RedBlackTree<T, ValueType>();
-  ~RedBlackTree<T, ValueType>();
+  RedBlackTree<T, ValueType, Allocator>();
+  ~RedBlackTree<T, ValueType, Allocator>();
   Node *searchTree(T k);
   Node *minimum(Node *node);
   Node *maximum(Node *node);
@@ -42,8 +50,8 @@ class RedBlackTree {
   bool empty() const noexcept { return _size == 0; }
 };
 
-template <typename T, typename ValueType>
-struct RedBlackTree<T, ValueType>::Node {
+template <typename T, typename ValueType, typename Allocator>
+struct RedBlackTree<T, ValueType, Allocator>::Node {
   T key;
   ValueType value;
   Node *parent, *left, *right;
@@ -58,21 +66,24 @@ struct RedBlackTree<T, ValueType>::Node {
         color() {}
 };
 
-template <typename T, typename ValueType>
-RedBlackTree<T, ValueType>::RedBlackTree() {
-  TNULL = new Node();
+template <typename T, typename ValueType, typename Allocator>
+RedBlackTree<T, ValueType, Allocator>::RedBlackTree() {
+  TNULL = node_alloc.allocate(1);
+  node_alloc.construct(TNULL);
   root = TNULL;
 }
 
-template <typename T, typename ValueType>
-RedBlackTree<T, ValueType>::~RedBlackTree() {
+template <typename T, typename ValueType, typename Allocator>
+RedBlackTree<T, ValueType, Allocator>::~RedBlackTree() {
   while (root != TNULL) deleteNode(root->key);
-  delete TNULL;
+  // delete TNULL;
+  // node_alloc.destroy(TNULL);
+  node_alloc.deallocate(TNULL, 1);
 }
 
-template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *
-RedBlackTree<T, ValueType>::searchTreeHelper(Node *node, T key) {
+template <typename T, typename ValueType, typename Allocator>
+typename RedBlackTree<T, ValueType, Allocator>::Node *
+RedBlackTree<T, ValueType, Allocator>::searchTreeHelper(Node *node, T key) {
   if (node == TNULL || key == node->key) {
     return node;
   }
@@ -84,8 +95,8 @@ RedBlackTree<T, ValueType>::searchTreeHelper(Node *node, T key) {
 }
 
 // For balancing the tree after deletion
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::deleteFix(Node *x) {
+template <typename T, typename ValueType, typename Allocator>
+void RedBlackTree<T, ValueType, Allocator>::deleteFix(Node *x) {
   Node *s;
   while (x != root && x->color == 0) {
     if (x == x->parent->left) {
@@ -145,8 +156,8 @@ void RedBlackTree<T, ValueType>::deleteFix(Node *x) {
   x->color = 0;
 }
 
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::rbTransplant(Node *u, Node *v) {
+template <typename T, typename ValueType, typename Allocator>
+void RedBlackTree<T, ValueType, Allocator>::rbTransplant(Node *u, Node *v) {
   if (u->parent == nullptr) {
     root = v;
   } else if (u == u->parent->left) {
@@ -157,8 +168,9 @@ void RedBlackTree<T, ValueType>::rbTransplant(Node *u, Node *v) {
   v->parent = u->parent;
 }
 
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::deleteNodeHelper(Node *node, T key) {
+template <typename T, typename ValueType, typename Allocator>
+void RedBlackTree<T, ValueType, Allocator>::deleteNodeHelper(Node *node,
+                                                             T key) {
   Node *z = TNULL;
   Node *x, *y;
   while (node != TNULL) {
@@ -203,15 +215,17 @@ void RedBlackTree<T, ValueType>::deleteNodeHelper(Node *node, T key) {
     y->color = z->color;
   }
   _size--;
-  delete z;
+  // node_alloc.destroy(z);
+  node_alloc.deallocate(z, 1);
+  // delete z;
   if (y_original_color == 0) {
     deleteFix(x);
   }
 }
 
 // For balancing the tree after insertion
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::insertFix(Node *k) {
+template <typename T, typename ValueType, typename Allocator>
+void RedBlackTree<T, ValueType, Allocator>::insertFix(Node *k) {
   Node *u;
   while (k->parent->color == 1) {
     if (k->parent == k->parent->parent->right) {
@@ -255,38 +269,38 @@ void RedBlackTree<T, ValueType>::insertFix(Node *k) {
   root->color = 0;
 }
 
-template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *
-RedBlackTree<T, ValueType>::searchTree(T k) {
+template <typename T, typename ValueType, typename Allocator>
+typename RedBlackTree<T, ValueType, Allocator>::Node *
+RedBlackTree<T, ValueType, Allocator>::searchTree(T k) {
   return searchTreeHelper(this->root, k);
 }
 
-template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::minimum(
-    Node *node) {
+template <typename T, typename ValueType, typename Allocator>
+typename RedBlackTree<T, ValueType, Allocator>::Node *
+RedBlackTree<T, ValueType, Allocator>::minimum(Node *node) {
   while (node->left != TNULL) {
     node = node->left;
   }
   return node;
 }
 
-template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *RedBlackTree<T, ValueType>::maximum(
-    Node *node) {
+template <typename T, typename ValueType, typename Allocator>
+typename RedBlackTree<T, ValueType, Allocator>::Node *
+RedBlackTree<T, ValueType, Allocator>::maximum(Node *node) {
   while (node->right != TNULL) {
     node = node->right;
   }
   return node;
 }
 
-template <typename T, typename ValueType>
-typename RedBlackTree<T, ValueType>::Node *
-RedBlackTree<T, ValueType>::getNullNode() {
+template <typename T, typename ValueType, typename Allocator>
+typename RedBlackTree<T, ValueType, Allocator>::Node *
+RedBlackTree<T, ValueType, Allocator>::getNullNode() {
   return TNULL;
 }
 
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::leftRotate(Node *x) {
+template <typename T, typename ValueType, typename Allocator>
+void RedBlackTree<T, ValueType, Allocator>::leftRotate(Node *x) {
   Node *y = x->right;
   x->right = y->left;
   if (y->left != TNULL) {
@@ -304,8 +318,8 @@ void RedBlackTree<T, ValueType>::leftRotate(Node *x) {
   x->parent = y;
 }
 
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::rightRotate(Node *x) {
+template <typename T, typename ValueType, typename Allocator>
+void RedBlackTree<T, ValueType, Allocator>::rightRotate(Node *x) {
   Node *y = x->left;
   x->left = y->right;
   if (y->right != TNULL) {
@@ -324,9 +338,11 @@ void RedBlackTree<T, ValueType>::rightRotate(Node *x) {
 }
 
 // Inserting a node
-template <typename T, typename ValueType>
-void RedBlackTree<T, ValueType>::insert(T key) {
-  Node *node = new Node;
+template <typename T, typename ValueType, typename Allocator>
+void RedBlackTree<T, ValueType, Allocator>::insert(T key) {
+  Node *node = node_alloc.allocate(1);
+  node_alloc.construct(node);
+
   _size++;
   node->parent = nullptr;
   node->key = key;

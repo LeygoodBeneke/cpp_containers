@@ -1,11 +1,11 @@
 #ifndef RB_TREE_CONSTITERATOR
 #define RB_TREE_CONSTITERATOR
 
-template <typename T, typename ValueType>
+template <typename T, typename ValueType, typename Allocator>
 class RedBlackTree;
 
-template <typename T, typename ValueType>
-class RedBlackTree<T, ValueType>::RedBlackTreeConstIterator {
+template <typename T, typename ValueType, typename Allocator>
+class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeConstIterator {
  public:
   RedBlackTreeConstIterator() noexcept {}
   RedBlackTreeConstIterator(RedBlackTreeConstIterator &it) noexcept

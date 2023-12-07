@@ -4,6 +4,7 @@
 #include <initializer_list>
 
 #include "../../utilities/rb_tree.h"
+#include "../vector/s21_vector.hpp"
 
 namespace s21 {
 
@@ -23,13 +24,13 @@ class set {
   set() : rb() {}
 
   set(std::initializer_list<Key> const &items) {
-    for (const auto item : items) insert(item);
+    for (const auto item : items) insert(item, item);
   }
 
   set(const set &s) { rb = s.rb; }
 
   set(set &s) {
-    for (const_iterator it : s) insert(*it);
+    for (const_iterator it : s) insert(*it, *it);
   }
 
   set(const set &&s) { rb = std::move(s.rb); }
@@ -55,25 +56,33 @@ class set {
   void clear() noexcept { rb.deleteNode(rb.getRoot()->value); }
 
   std::pair<iterator, bool> insert(const_reference value) {
-    iterator place(*rb.searchTree(value));
+    iterator place(rb.searchTree(value));
     bool placed = false;
     if (place == rb.getNullNode()) {
       placed = true;
       rb.insert(value, value);
-      place = iterator(*rb.searchTree(value));
+      place = iterator(rb.searchTree(value));
     }
     return std::pair<iterator, bool>(place, placed);
   }
 
   std::pair<iterator, bool> insert(value_type &&value) {
-    iterator place(*rb.searchTree(std::move(value)));
+    iterator place(rb.searchTree(std::move(value)));
     bool placed = false;
     if (place == rb.getNullNode()) {
       placed = true;
       rb.insert(std::move(value), std::move(value));
-      place = iterator(*rb.searchTree(std::move(value)));
+      place = iterator(rb.searchTree(std::move(value)));
     }
     return std::pair<iterator, bool>(place, placed);
+  }
+  
+  template <typename... Args>
+  vector<std::pair<iterator,bool>> insert_many(Args&&... args) {
+    vector<std::pair<iterator,bool>> vec;
+    for (const auto &arg : {args...})
+      vec.push_back(insert(arg, arg));
+    return vec;
   }
 
   void erase(iterator pos) { rb.deleteNode(*pos); }

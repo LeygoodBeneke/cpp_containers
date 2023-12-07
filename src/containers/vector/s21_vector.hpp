@@ -55,6 +55,19 @@ class vector {
   vector& operator=(vector&& v) noexcept;                      // +
   vector& operator=(const vector& v);                          // +
   vector& operator=(std::initializer_list<value_type> ilist);  // +
+  
+  template<typename... Args>
+  iterator insert_many(const_iterator pos, Args&&... args) {
+    for (const auto &arg : {args...})
+      insert(pos, arg);
+    return pos;
+  }
+
+  template<typename... Args>
+  void insert_many_back(Args&&... args) {
+    for (const auto &arg : {args...})
+      push_back(arg);
+  }
 
  private:
   Allocator _allocator;

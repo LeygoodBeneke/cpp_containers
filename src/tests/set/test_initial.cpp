@@ -4,6 +4,8 @@ TEST(InitialSet, Subtest_1) {
   s21::set<int> sss;
   int a = 2;
   sss.insert(a);
+  ASSERT_EQ(sss.size(), 1);
+  ASSERT_EQ(*sss.begin(), 2);
 }
 
 TEST(InitialSet2, Subtest_1) {

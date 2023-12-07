@@ -38,7 +38,7 @@ class RedBlackTree {
   Node *getNullNode();
   void leftRotate(Node *x);
   void rightRotate(Node *x);
-  void insert(T key);
+  void insert(T key, ValueType value = {});
   Node *getRoot() { return this->root; }
   void deleteNode(T key) { deleteNodeHelper(this->root, key); }
 
@@ -47,6 +47,7 @@ class RedBlackTree {
   iterator end() { return iterator(maximum(root))++; }
   const_iterator end() const { return const_iterator(maximum(root))++; }
   unsigned size() const noexcept { return _size; }
+  unsigned max_size() const noexcept { return node_alloc.max_size(); }
   bool empty() const noexcept { return _size == 0; }
 };
 
@@ -76,8 +77,7 @@ RedBlackTree<T, ValueType, Allocator>::RedBlackTree() {
 template <typename T, typename ValueType, typename Allocator>
 RedBlackTree<T, ValueType, Allocator>::~RedBlackTree() {
   while (root != TNULL) deleteNode(root->key);
-  // delete TNULL;
-  // node_alloc.destroy(TNULL);
+  node_alloc.destroy(TNULL);
   node_alloc.deallocate(TNULL, 1);
 }
 
@@ -339,14 +339,14 @@ void RedBlackTree<T, ValueType, Allocator>::rightRotate(Node *x) {
 
 // Inserting a node
 template <typename T, typename ValueType, typename Allocator>
-void RedBlackTree<T, ValueType, Allocator>::insert(T key) {
+void RedBlackTree<T, ValueType, Allocator>::insert(T key, ValueType value) {
   Node *node = node_alloc.allocate(1);
   node_alloc.construct(node);
 
   _size++;
   node->parent = nullptr;
   node->key = key;
-  node->value = key;
+  node->value = value;
   node->left = TNULL;
   node->right = TNULL;
   node->color = 1;

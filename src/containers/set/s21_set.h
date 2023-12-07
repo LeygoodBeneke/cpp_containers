@@ -76,12 +76,11 @@ class set {
     }
     return std::pair<iterator, bool>(place, placed);
   }
-  
+
   template <typename... Args>
-  vector<std::pair<iterator,bool>> insert_many(Args&&... args) {
-    vector<std::pair<iterator,bool>> vec;
-    for (const auto &arg : {args...})
-      vec.push_back(insert(arg, arg));
+  vector<std::pair<iterator, bool>> insert_many(Args &&...args) {
+    vector<std::pair<iterator, bool>> vec;
+    for (const auto &arg : {args...}) vec.push_back(insert(arg, arg));
     return vec;
   }
 

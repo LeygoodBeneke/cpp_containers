@@ -11,6 +11,8 @@ namespace s21 {
 template <typename Key, typename Compare = std::less<Key>,
           typename Allocator = std::allocator<Key>>
 class set {
+  class SetIterator;
+
  public:
   using value_type = Key;
   using reference = value_type &;
@@ -18,7 +20,7 @@ class set {
   using const_reference = const value_type &;
   using size_type = std::size_t;
   using allocator = Allocator;
-  using iterator = typename RedBlackTree<Key>::iterator;
+  using iterator = SetIterator;
   using const_iterator = typename RedBlackTree<Key>::const_iterator;
 
   set() : rb() {}
@@ -27,14 +29,7 @@ class set {
     for (const auto item : items) insert(item, item);
   }
 
-  set(const set &s) { rb = s.rb; }
-
-  set(set &s) {
-    for (const_iterator it : s) insert(*it, *it);
-  }
-
-  set(const set &&s) { rb = std::move(s.rb); }
-
+  set(const set &s) : rb(s.rb) {}
   set(set &&s) { rb = std::move(s.rb); }
 
   ~set() {}
@@ -44,16 +39,16 @@ class set {
     return *this;
   }
 
-  iterator begin() { return rb.begin(); }
-  iterator end() { return rb.end(); }
-  const_iterator begin() const { return rb.begin(); }
-  const_iterator end() const { return rb.end(); }
+  iterator begin() { return SetIterator(rb.begin()); }
+  iterator end() { return SetIterator(rb.end()); }
+  const_iterator begin() const { return SetIterator(rb.begin()); }
+  const_iterator end() const { return SetIterator(rb.end()); }
 
   constexpr inline bool empty() const noexcept { return rb.empty(); }
   constexpr inline size_type size() const noexcept { return rb.size(); }
   size_type max_size() const noexcept { return rb.max_size(); }
 
-  void clear() noexcept { rb.deleteNode(rb.getRoot()->value); }
+  void clear() noexcept { rb.clear(); }
 
   std::pair<iterator, bool> insert(const_reference value) {
     iterator place(rb.searchTree(value));
@@ -119,8 +114,85 @@ class set {
     return !(lhs == rhs);
   }
 
+  friend bool operator==(const std::pair<Key, Key> &lhs,
+                         const std::pair<Key, Key> &rhs) {
+    return lhs.first == rhs.first && lhs.second == rhs.second;
+  }
+
  private:
   RedBlackTree<Key, Key, Allocator> rb;
+};
+
+template <typename Key, typename Compare, typename Allocator>
+class set<Key, Compare, Allocator>::SetIterator {
+ public:
+  SetIterator() noexcept {}
+
+  SetIterator(const SetIterator &it) noexcept : rb_it(it.rb_it) {}
+  SetIterator(SetIterator &&it) noexcept : rb_it(std::move(it.rb_it)) {}
+
+  SetIterator(const typename RedBlackTree<Key>::iterator &it) noexcept
+      : rb_it(it) {}
+  SetIterator(typename RedBlackTree<Key>::iterator &&it) noexcept
+      : rb_it(std::move(it)) {}
+  ~SetIterator() {}
+
+  SetIterator &operator=(const SetIterator &other) {
+    if (&other != this) {
+      rb_it = other.rb_it;
+    }
+    return *this;
+  }
+
+  friend bool operator==(const SetIterator &lhs,
+                         const SetIterator &rhs) noexcept {
+    return lhs.rb_it == rhs.rb_it;
+  }
+
+  friend bool operator!=(const SetIterator &lhs,
+                         const SetIterator &rhs) noexcept {
+    return lhs.rb_it != rhs.rb_it;
+  }
+
+  reference operator*() noexcept { return (*rb_it)->value; }
+
+  SetIterator &operator++() noexcept {
+    rb_it++;
+    return *this;
+  }
+  SetIterator &operator--() noexcept {
+    rb_it--;
+    return *this;
+  }
+
+  SetIterator operator++(int) noexcept {
+    SetIterator tmp(*this);
+    ++(*this);
+    return tmp;
+  }
+
+  SetIterator operator--(int) noexcept {
+    SetIterator tmp(*this);
+    --(*this);
+    return tmp;
+  }
+
+  SetIterator &operator+=(const size_type n) {
+    for (size_t i = 0; i < n; i++) ++(*this);
+    return *this;
+  }
+
+  SetIterator &operator-=(const size_type n) {
+    for (auto i = 0; i < n; i++) --(*this);
+    return *this;
+  }
+
+  friend bool operator==(SetIterator &lhs, SetIterator &rhs) {
+    return *lhs == *rhs;
+  }
+
+ private:
+  typename RedBlackTree<Key>::iterator rb_it;
 };
 
 }  // namespace s21

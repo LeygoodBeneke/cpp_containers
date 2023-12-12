@@ -46,3 +46,16 @@ TEST(InitialSet2, Subtest_3) {
   it++;
   ASSERT_EQ(it, ss.end());
 }
+
+TEST(InitialSet2, Subtest_4) {
+  s21::set<int> ss;
+  ss.insert(25);
+  ss.insert(30);
+  ss.insert(56);
+  ss.insert(71);
+
+  s21::set<int> ne(ss);
+
+  ASSERT_EQ(ne.size(), ss.size());
+  ASSERT_EQ(*ne.begin(), 25);
+}

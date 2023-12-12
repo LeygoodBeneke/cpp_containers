@@ -8,7 +8,9 @@ template <typename T, typename ValueType, typename Allocator>
 class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
  public:
   RedBlackTreeIterator() noexcept {}
-  RedBlackTreeIterator(RedBlackTreeIterator &it) noexcept : ptr(it.ptr) {}
+  RedBlackTreeIterator(const RedBlackTreeIterator &it) noexcept : ptr(it.ptr) {}
+  RedBlackTreeIterator(RedBlackTreeIterator &&it) noexcept
+      : ptr(std::move(it.ptr)) {}
   RedBlackTreeIterator(Node &node_ptr) noexcept : ptr(&node_ptr) {}
   RedBlackTreeIterator(Node *node_ptr) noexcept : ptr(node_ptr) {}
   ~RedBlackTreeIterator() noexcept {}
@@ -28,26 +30,26 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
     return ptr != other.ptr;
   }
 
-  T &operator*() { return ptr->value; }
+  Node *operator*() { return ptr; }
 
-  RedBlackTreeIterator operator++() noexcept {
+  RedBlackTreeIterator operator++(int) noexcept {
     RedBlackTreeIterator it(*this);
     ptr = next(ptr);
     return it;
   }
 
-  RedBlackTreeIterator &operator++(int) noexcept {
+  RedBlackTreeIterator &operator++() noexcept {
     ptr = next(ptr);
     return *this;
   }
 
-  RedBlackTreeIterator operator--() noexcept {
+  RedBlackTreeIterator operator--(int) noexcept {
     RedBlackTreeIterator it(*this);
     ptr = prev(*this);
     return it;
   }
 
-  RedBlackTreeIterator &operator--(int) noexcept {
+  RedBlackTreeIterator &operator--() noexcept {
     ptr = prev(ptr);
     return *this;
   }
@@ -79,7 +81,7 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
     return right;
   }
 
-  Node *prev(RedBlackTreeIterator &root) noexcept {
+  Node *prev(Node *root) noexcept {
     if (!root->left->right && !root->left->left) {
       Node *parent = root->parent;
       while (parent) {

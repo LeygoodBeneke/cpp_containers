@@ -1,5 +1,5 @@
-#ifndef S21_SET_H
-#define S21_SET_H
+#ifndef S21_MULTISET_H
+#define S21_MULTISET_H
 
 #include <initializer_list>
 

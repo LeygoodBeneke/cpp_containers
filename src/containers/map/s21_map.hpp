@@ -1,5 +1,5 @@
-#ifndef S21_MAP_HPP
-#define S21_MAP_HPP
+#ifndef S21_map_HPP
+#define S21_map_HPP
 
 #include <cstddef>
 #include <initializer_list>
@@ -7,127 +7,145 @@
 #include <iterator>
 #include <limits>
 #include <memory>
+#include "../vector/s21_vector.hpp"
 #include "../../utilities/rb_tree.h"
 
 namespace s21 {
-template <typename Key, typename T, typename A = std::allocator<std::pair<const Key, T>>>
+template <typename Key, typename T>
 class map {
   public:
   using key_type = Key;
   using mapped_type = T;
   using value_type = std::pair<const key_type,mapped_type>;
-  using reference = value_type &;
-  using pointer = value_type *;
   using const_reference = const value_type &;
-  using allocator_type = A;
-  using tree_allocator =
-      typename std::allocator_traits<allocator_type>::template rebind_alloc<RedBlackTree<Key, T>>;
   using size_type = std::size_t;
   using tree_type = RedBlackTree<Key, T>;
-  using iterator = typename tree_type::RedBlackTreeIterator;
+  using iterator = typename tree_type::iterator;
   using const_iterator = typename tree_type::RedBlackTreeConstIterator;
 
-  map(const allocator_type &alloc = allocator_type()) try : alloc_(alloc), rb_tree_(tree_alloc_.allocate(1)) {
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
-  }
+  map() : rb_tree_() {}
 
-  Map(std::initializer_list<value_type> const &items, const allocator_type &alloc = allocator_type()) try : alloc_(alloc), rb_tree_(tree_alloc_.allocate(1)) {
-     for (const_reference item : items) insert(item);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
-  }
+  map(std::initializer_list<value_type> const &items) :  rb_tree_() {
+     for (const_reference item : items) insert(item.first, item.second);
+  } 
 
-  Map(const Map &m, const allocator_type &alloc = allocator_type()) try : alloc_(alloc), rb_tree_(tree_alloc_.allocate(1)) {
-    for (const_iterator it = m.begin(); it != m.end(); ++it) insert(*it);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
-  }
+  map(const map &m) {}
 
-  Map(Map &&m) try : alloc_(alloc), rb_tree_(tree_alloc_.allocate(1)) {
+  map(map &&m) : rb_tree_() {
     swap(m);
-  } catch (std::bad_alloc &t) {
-    std::cerr << t.what() << std::endl;
-    clear();
-    throw;
   }
 
-  ~Map() { rb_tree_.clear(); }
-
-  Map &operator=(const Map &otherMap) {
-    rb_tree_ = otherMap.tree_alloc_;
-  }
-
-  Map& operator=(Map &&m) {
+  map& operator=(map &&m) {
     if (m != *this) swap(m);
     return *this;
   }
 
-  mapped_type& at(const key_type& key); //нужен throw
-  mapped_type& operator[](const key_type& key);
-  iterator begin();
-  iterator end();
+  ~map() { clear(); }
 
-  bool empty() const noexcept { return rb_tree_.size(); } //нужен метод size
-  size_type size() const noexcept { return rb_tree_.size();  }
-  size_type max_size() const noexcept { return alloc_.max_size(); }
-
-  void clear() noexcept {
-    rb_tree_.clear();
+  mapped_type& at(const key_type& key) {
+    if (!contains(key)) throw std::out_of_range("Key not found in the map");
+    return rb_tree_.searchTree(key)->value;
   }
 
-  //нужно чтобы в tree возвращаемое значение было std::pair<iterator, bool> и далее аналогично
+  mapped_type& operator[](const key_type& key) {
+    if (!rb_tree_.searchTree(key)) {
+    ++rb_tree_._size;
+    insert(key);
+    }
+    return rb_tree_.searchTree(key)->value;
+  }
+
+  iterator begin() { return rb_tree_.begin(); }
+  iterator end() { return rb_tree_.end(); }
+  const_iterator begin() const { return rb_tree_.begin(); }
+  const_iterator end() const { return rb_tree_.end(); }
+
+  bool empty() const noexcept { return rb_tree_.size(); } 
+  size_type size() const noexcept { return rb_tree_.size(); }
+  size_type max_size() const noexcept { return rb_tree_.max_size(); }
+
+  void clear() noexcept {
+    rb_tree_.deleteNode(rb_tree_.getRoot()->key);
+  }
+
   std::pair<iterator, bool> insert(const_reference value) {
-    return rb_tree_.insert(value);
+    iterator place(rb_tree_.searchTree(value.first));
+    bool placed = false;
+    if (place == rb_tree_.getNullNode()) {
+      placed = true;
+      rb_tree_.insert(value.first, value.second);
+      place = iterator(rb_tree_.searchTree(value.first));
+    }
+    return std::pair<iterator, bool>(place, placed);
   }
 
   std::pair<iterator, bool> insert(const key_type& key, const mapped_type& obj) {
-    value_type value = std::make_pair(key, obj);
-    return rb_tree_.insert(value);
+    iterator place(rb_tree_.searchTree(key));
+    bool placed = false;
+    if (place == rb_tree_.getNullNode()) {
+      placed = true;
+      rb_tree_.insert(key, obj);
+      place = iterator(rb_tree_.searchTree(key));
+    }
+    return std::pair<iterator, bool>(rb_tree_.getNullNode(), placed);
   }
 
   std::pair<iterator, bool> insert_or_assign(const key_type& key, const mapped_type& obj) {
-    //вставка или замена значения по ключу
+    iterator place(rb_tree_.searchTree(key));
+    bool placed = false;
+    if (place == rb_tree_.getNullNode()) {
+      placed = true;
+      rb_tree_.insert(key, obj);
+      place = iterator(rb_tree_.searchTree(key));
+    } else {
+      rb_tree_.searchTree(key).value = obj;
+    }
+    return std::pair<iterator, bool>(rb_tree_.getNullNode(), placed);
   }
   
   void erase(iterator pos) {
-    rb_tree_.deleteNode(pos.ptr);
+    rb_tree_.deleteNode(*pos);
   }
 
-  void swap(Map& other) {
-    rb_tree_.swap(other); //нужна функция в tree
+  void swap(map& other) {
+    std::swap(rb_tree_, other.rb_tree_);
   }
 
-  void merge(Map& other);
+  void merge(map& other) {
+    if (this == &other) return;
+    for (iterator it = other.begin(); it != other.end(); ++it) {
+      insert_or_assign(it.key, it.value);
+    }
+  }
 
   bool contains(const Key& key) const {
-    //return rb_tree_ поиск по дереву с булевым значением
+    return rb_tree_.searchTree(key) == rb_tree_.getNullNode();
+  }
+
+  template <typename... Args>
+  vector<std::pair<iterator,bool>> insert_many(Args&&... args) {
+    vector<std::pair<iterator, bool>> vec;
+    for (const auto &arg : {args...}) vec.push_back(insert(arg, arg));
+    return vec;
   }
   
   /*** NON MEMBER ***/
-  friend bool operator==( const std::map<Key, T, Compare, Alloc>& lhs,
-                 const std::map<Key, T, Compare, Alloc>& rhs ) {
-    if (lhs.size() != rhs.size())
-      return false;
-    else {
-      for (std::pair<const_iterator, const_iterator> it(lhs.begin(),
-                                                        rhs.begin());
-           it.first != lhs.end(); ++it.first, ++it.second) {
-        if (*(it.first) != *(it.second)) return false;
-      }
-    }
-    return true;
-  }
+  //нет возможности нормально обратиться к key/value
+  // friend bool operator==( const map& lhs,
+  //                const map& rhs ) {
+  //   if (lhs.size() != rhs.size())
+  //     return false;
+  //   else {
+  //     for (std::pair<const_iterator, const_iterator> it(lhs.begin(),
+  //                                                       rhs.begin());
+  //          it.first != lhs.end(); ++it.first, ++it.second) {
+  //       if (it.first != it.second) return false;
+  //     }
+  //   }
+  //   return true;
+  // }
 
   private:
-  allocator_type alloc_;
-  tree_allocator tree_alloc_;
   tree_type rb_tree_;
 };
 

@@ -12,6 +12,7 @@ template <typename Key, typename Compare = std::less<Key>,
           typename Allocator = std::allocator<Key>>
 class set {
   class SetIterator;
+  class SetConstIterator;
 
  public:
   using value_type = Key;
@@ -26,7 +27,7 @@ class set {
   set() : rb() {}
 
   set(std::initializer_list<Key> const &items) {
-    for (const auto item : items) insert(item, item);
+    for (const auto item : items) rb.insert(item, item);
   }
 
   set(const set &s) : rb(s.rb) {}
@@ -193,6 +194,80 @@ class set<Key, Compare, Allocator>::SetIterator {
 
  private:
   typename RedBlackTree<Key>::iterator rb_it;
+};
+
+template <typename Key, typename Compare, typename Allocator>
+class set<Key, Compare, Allocator>::SetConstIterator {
+ public:
+  SetConstIterator() noexcept {}
+
+  SetConstIterator(const SetConstIterator &it) noexcept : rb_it(it.rb_it) {}
+  SetConstIterator(SetConstIterator &&it) noexcept
+      : rb_it(std::move(it.rb_it)) {}
+
+  SetConstIterator(
+      const typename RedBlackTree<Key>::const_iterator &it) noexcept
+      : rb_it(it) {}
+  SetConstIterator(typename RedBlackTree<Key>::const_iterator &&it) noexcept
+      : rb_it(std::move(it)) {}
+  ~SetConstIterator() {}
+
+  SetConstIterator &operator=(const SetConstIterator &other) {
+    if (&other != this) {
+      rb_it = other.rb_it;
+    }
+    return *this;
+  }
+
+  friend bool operator==(const SetConstIterator &lhs,
+                         const SetConstIterator &rhs) noexcept {
+    return lhs.rb_it == rhs.rb_it;
+  }
+
+  friend bool operator!=(const SetConstIterator &lhs,
+                         const SetConstIterator &rhs) noexcept {
+    return lhs.rb_it != rhs.rb_it;
+  }
+
+  reference operator*() noexcept { return (*rb_it)->value; }
+
+  SetConstIterator &operator++() noexcept {
+    rb_it++;
+    return *this;
+  }
+  SetConstIterator &operator--() noexcept {
+    rb_it--;
+    return *this;
+  }
+
+  SetConstIterator operator++(int) noexcept {
+    SetConstIterator tmp(*this);
+    ++(*this);
+    return tmp;
+  }
+
+  SetConstIterator operator--(int) noexcept {
+    SetConstIterator tmp(*this);
+    --(*this);
+    return tmp;
+  }
+
+  SetConstIterator &operator+=(const size_type n) {
+    for (size_t i = 0; i < n; i++) ++(*this);
+    return *this;
+  }
+
+  SetConstIterator &operator-=(const size_type n) {
+    for (auto i = 0; i < n; i++) --(*this);
+    return *this;
+  }
+
+  friend bool operator==(SetConstIterator &lhs, SetConstIterator &rhs) {
+    return *lhs == *rhs;
+  }
+
+ private:
+  typename RedBlackTree<Key>::const_iterator rb_it;
 };
 
 }  // namespace s21

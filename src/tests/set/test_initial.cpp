@@ -59,3 +59,15 @@ TEST(InitialSet2, Subtest_4) {
   ASSERT_EQ(ne.size(), ss.size());
   ASSERT_EQ(*ne.begin(), 25);
 }
+
+TEST(InitialSet2, Subtest_5) {
+  const s21::set<int> ss = {1, 2, 3, 4};
+  ASSERT_EQ(ss.size(), 4);
+}
+
+TEST(InitialSet2, Subtest_6) {
+  s21::set<int> ss = {1, 2, 3, 4};
+  ss.erase(ss.begin());
+  ASSERT_EQ(ss.size(), 3);
+  ASSERT_EQ(*ss.begin(), 2);
+}

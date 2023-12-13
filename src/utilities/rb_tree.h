@@ -41,7 +41,7 @@ class RedBlackTree {
   iterator getNullNode();
   void leftRotate(Node *x);
   void rightRotate(Node *x);
-  void insert(key_type key, mapped_type value = {});
+  void insert(const key_type key, const mapped_type value = {});
   void clear() { deleteNode(root->value); }  // XD
   void deleteNode(key_type key) { deleteNodeHelper(this->root, key); }
 
@@ -368,8 +368,8 @@ void RedBlackTree<key_type, mapped_type, Allocator>::rightRotate(Node *x) {
 
 // Inserting a node
 template <typename key_type, typename mapped_type, typename Allocator>
-void RedBlackTree<key_type, mapped_type, Allocator>::insert(key_type key,
-                                                            mapped_type value) {
+void RedBlackTree<key_type, mapped_type, Allocator>::insert(
+    const key_type key, const mapped_type value) {
   Node *node = node_alloc.allocate(1);
   node_alloc.construct(node);
 

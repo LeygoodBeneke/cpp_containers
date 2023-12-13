@@ -22,7 +22,7 @@ class set {
   using size_type = std::size_t;
   using allocator = Allocator;
   using iterator = SetIterator;
-  using const_iterator = typename RedBlackTree<Key>::const_iterator;
+  using const_iterator = SetConstIterator;
 
   set() : rb() {}
 

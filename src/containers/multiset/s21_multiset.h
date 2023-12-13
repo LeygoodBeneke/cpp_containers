@@ -23,7 +23,7 @@ class multiset {
   using size_type = std::size_t;
   using allocator = Allocator;
   using iterator = MultiSetIterator;
-  using const_iterator = typename RedBlackTree<Key>::const_iterator;
+  using const_iterator = MultiSetConstIterator;
 
   multiset() : rb() {}
 

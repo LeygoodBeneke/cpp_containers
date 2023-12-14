@@ -19,62 +19,62 @@ TEST(Constructors, InitList) {
   EXPECT_TRUE(m.size() == 3);
 }
 
-// TEST(Constructors, Copy) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   s21::map<std::string, int> m2(m);
-//   EXPECT_TRUE(m2.size() == m.size());
-// }
-
-// TEST(Constructors, Move) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   s21::map<std::string, int> m2 {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   s21::map<std::string, int> m3(std::move(m));
-//   EXPECT_TRUE(m3.size() == m2.size());
-// }
-
-TEST(Operator, Assign) {
+TEST(Constructors, Copy) {
   s21::map<std::string, int> m {
         {"okay", 100},
         {"let's", 200},
         {"go", 300}
   };
-  s21::map<std::string, int> m2 = m;
+  s21::map<std::string, int> m2(m);
   EXPECT_TRUE(m2 == m);
 }
 
-// TEST(Methods, Size) {
-//   s21::map<std::string, int> m;
-//   s21::map<std::string, int> m2 {
+TEST(Constructors, Move) {
+  s21::map<std::string, int> m {
+        {"okay", 100},
+        {"let's", 200},
+        {"go", 300}
+  };
+  s21::map<std::string, int> m2 {
+        {"okay", 100},
+        {"let's", 200},
+        {"go", 300}
+  };
+  s21::map<std::string, int> m3(std::move(m));
+  EXPECT_TRUE(m3 == m2);
+}
+
+// TEST(Operator, Assign) {
+//   s21::map<std::string, int> m {
 //         {"okay", 100},
 //         {"let's", 200},
 //         {"go", 300}
 //   };
-//   EXPECT_TRUE(m.size() == 0);
-//   EXPECT_TRUE(m.size() == 3);
+//   s21::map<std::string, int> m2 = m;
+//   EXPECT_TRUE(m2 == m);
 // }
 
-// TEST(Methods, Empty) {
-//   s21::map<std::string, int> m;
-//   s21::map<std::string, int> m2 {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   EXPECT_EQ(m.empty(), true);
-//   EXPECT_EQ(m2.empty(), false);
-// }
+TEST(Methods, Size) {
+  s21::map<std::string, int> m;
+  s21::map<std::string, int> m2 {
+        {"okay", 100},
+        {"let's", 200},
+        {"go", 300}
+  };
+  EXPECT_EQ(m.size(), 0);
+  EXPECT_EQ(m2.size(), 3);
+}
+
+TEST(Methods, Empty) {
+  s21::map<std::string, int> m;
+  s21::map<std::string, int> m2 {
+        {"okay", 100},
+        {"let's", 200},
+        {"go", 300}
+  };
+  EXPECT_EQ(m.empty(), true);
+  EXPECT_EQ(m2.empty(), false);
+}
 
 // TEST(Methods, InsertKeyValue) {
 //   s21::map<std::string, int> m;
@@ -100,16 +100,6 @@ TEST(Operator, Assign) {
 //   EXPECT_EQ(status, false);
 //   status = m.insert_or_assign("okay", 400).second;
 //   EXPECT_EQ(status, true);
-// }
-
-// TEST(Methods, At) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   m.at("okay") = 200;
-//   EXPECT_EQ(m.at("okay"), 200);
 // }
 
 // TEST(Methods, AtThrow) {
@@ -141,9 +131,8 @@ TEST(Operator, Assign) {
 //   EXPECT_EQ(*m.begin().second, 100);
 //   EXPECT_EQ(*(++m.begin()).first, "let's");
 //   EXPECT_EQ(*(++m.begin()).second, 200);
-// }
-
-// TEST(Methods, End) {
+// }+
+// TEST(Methods, End) --{
 //   s21::map<std::string, int> m {
 //         {"okay", 100},
 //         {"let's", 200},
@@ -170,8 +159,8 @@ TEST(Operator, Assign) {
 //         {"go", 300}
 //   };
 //   m.erase(m.begin());
-//   EXPECT_EQ(m.size(), 2);
-//   EXPECT_EQ(*m.begin().first, "let's");
+// EXPECT_EQ(m.size(), 2);
+// EXPECT_EQ(*m.begin().first, "let's");
 // }
 
 // TEST(Methods, Swap) {

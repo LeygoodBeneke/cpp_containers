@@ -29,7 +29,7 @@ class map {
      for (const_reference item : items) insert(item.first, item.second);
   } 
 
-  map(const map &m) {}
+  map(const map &m) : rb_tree_(m.rb_tree_) {}
 
   map(map &&m) : rb_tree_() {
     swap(m);
@@ -40,7 +40,7 @@ class map {
     return *this;
   }
 
-  ~map() { clear(); }
+  ~map() {}
 
   mapped_type& at(const key_type& key) {
     if (!contains(key)) throw std::out_of_range("Key not found in the map");
@@ -60,12 +60,12 @@ class map {
   const_iterator begin() const { return rb_tree_.begin(); }
   const_iterator end() const { return rb_tree_.end(); }
 
-  bool empty() const noexcept { return rb_tree_.size(); } 
+  bool empty() const noexcept { return rb_tree_.empty(); } 
   size_type size() const noexcept { return rb_tree_.size(); }
   size_type max_size() const noexcept { return rb_tree_.max_size(); }
 
   void clear() noexcept {
-    rb_tree_.deleteNode(rb_tree_.getRoot()->key);
+    rb_tree_.clear();
   }
 
   std::pair<iterator, bool> insert(const_reference value) {
@@ -114,7 +114,7 @@ class map {
   void merge(map& other) {
     if (this == &other) return;
     for (iterator it = other.begin(); it != other.end(); ++it) {
-      insert_or_assign(it.key, it.value);
+      insert_or_assign(it.key, it.value); //нужен доступ к ключу-значению. лучше реализовать в дереве
     }
   }
 
@@ -130,20 +130,10 @@ class map {
   }
   
   /*** NON MEMBER ***/
-  //нет возможности нормально обратиться к key/value
-  // friend bool operator==( const map& lhs,
-  //                const map& rhs ) {
-  //   if (lhs.size() != rhs.size())
-  //     return false;
-  //   else {
-  //     for (std::pair<const_iterator, const_iterator> it(lhs.begin(),
-  //                                                       rhs.begin());
-  //          it.first != lhs.end(); ++it.first, ++it.second) {
-  //       if (it.first != it.second) return false;
-  //     }
-  //   }
-  //   return true;
-  // }
+  friend bool operator==( const map& lhs,
+                 const map& rhs ) {
+    return lhs.rb_tree_ == rhs.rb_tree_;
+  }
 
   private:
   tree_type rb_tree_;

@@ -71,3 +71,19 @@ TEST(InitialSet2, Subtest_6) {
   ASSERT_EQ(ss.size(), 3);
   ASSERT_EQ(*ss.begin(), 2);
 }
+
+TEST(InitialSet2, Subtest_7) {
+  s21::set<int> ss = {1, 2, 3, 4};
+  s21::set<int> sss = {1, 2, 3};
+  ss.swap(sss);
+  ASSERT_EQ(ss.size(), 3);
+  ASSERT_EQ(sss.size(), 4);
+}
+
+TEST(InitialSet2, Subtest_8) {
+  s21::set<int> ss = {1, 2, 3, 4};
+  s21::set<int> sss = {1, 2, 3};
+  std::swap(sss, ss);
+  ASSERT_EQ(ss.size(), 3);
+  ASSERT_EQ(sss.size(), 4);
+}

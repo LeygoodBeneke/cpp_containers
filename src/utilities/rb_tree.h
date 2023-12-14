@@ -52,6 +52,9 @@ class RedBlackTree {
   unsigned size() const noexcept { return _size; }
   unsigned max_size() const noexcept { return node_alloc.max_size(); }
   bool empty() const noexcept { return _size == 0; }
+
+  RedBlackTree &operator=(const RedBlackTree &other);
+  RedBlackTree &operator=(RedBlackTree &&other) noexcept;
 };
 
 template <typename key_type, typename mapped_type, typename Allocator>
@@ -93,9 +96,10 @@ RedBlackTree<key_type, mapped_type, Allocator>::RedBlackTree(
 template <typename key_type, typename mapped_type, typename Allocator>
 RedBlackTree<key_type, mapped_type, Allocator>::RedBlackTree(
     RedBlackTree &&rb) {
-  root = rb.root;
-  TNULL = rb.TNULL;
-  _size = rb._size;
+  root = std::move(rb.root);
+  TNULL = std::move(rb.TNULL);
+  _size = std::move(rb._size);
+  node_alloc = std::move(rb.node_alloc);
   rb.root = nullptr;
   rb.TNULL = nullptr;
   rb._size = 0;
@@ -410,6 +414,45 @@ void RedBlackTree<key_type, mapped_type, Allocator>::insert(
   if (node->parent->parent == nullptr) return;
 
   insertFix(node);
+}
+
+template <typename key_type, typename mapped_type, typename Allocator>
+RedBlackTree<key_type, mapped_type, Allocator> &
+RedBlackTree<key_type, mapped_type, Allocator>::operator=(
+    const RedBlackTree &other) {
+  if (this == &other) return *this;
+
+  TNULL = node_alloc.allocate(1);
+  node_alloc.construct(TNULL);
+  root = TNULL;
+  RedBlackTreeConstIterator b(other.begin()), e(other.end());
+  while (b != e) {
+    insert((*b)->key, (*b)->value);
+    ++b;
+  }
+  return *this;
+}
+
+template <typename key_type, typename mapped_type, typename Allocator>
+RedBlackTree<key_type, mapped_type, Allocator> &
+RedBlackTree<key_type, mapped_type, Allocator>::operator=(
+    RedBlackTree &&other) noexcept {
+  if (this == &other) return *this;
+
+  while (root != TNULL) deleteNode(root->key);
+  node_alloc.destroy(TNULL);
+  node_alloc.deallocate(TNULL, 1);
+
+  TNULL = std::move(other.TNULL);
+  root = std::move(other.root);
+  _size = std::move(other._size);
+  node_alloc = std::move(other.node_alloc);
+
+  other.TNULL = nullptr;
+  other.root = nullptr;
+  other._size = 0;
+
+  return *this;
 }
 
 #include "rb_tree_const_iterator.h"

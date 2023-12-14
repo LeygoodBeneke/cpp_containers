@@ -1,6 +1,7 @@
 #ifndef RB_TREE_H
 #define RB_TREE_H
 
+#include <iostream>
 #include <memory>
 
 template <typename key_type, typename mapped_type = key_type,
@@ -55,6 +56,22 @@ class RedBlackTree {
 
   RedBlackTree &operator=(const RedBlackTree &other);
   RedBlackTree &operator=(RedBlackTree &&other) noexcept;
+
+  friend bool operator==(const RedBlackTree &lhs,
+                         const RedBlackTree &rhs) noexcept {
+    if (lhs._size != rhs._size) return false;
+    const_iterator first(lhs.begin()), second(rhs.begin());
+    size_t equal_counter = 0;
+    while (equal_counter < lhs._size) {
+      if ((*first)->value != (*second)->value ||
+          (*first)->key != (*second)->key)
+        return false;
+      first++;
+      second++;
+      equal_counter++;
+    }
+    return equal_counter == lhs._size;
+  }
 };
 
 template <typename key_type, typename mapped_type, typename Allocator>

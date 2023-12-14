@@ -96,17 +96,8 @@ class set {
     return rb.searchTree(key) == rb.getNullNode();
   }
 
-  friend bool operator==(
-      const set<Key, Compare, Allocator> &lhs,
-      const s21::set<Key, Compare, Allocator> &rhs) noexcept {
-    if (lhs.size() != rhs.size()) return false;
-    const_iterator lhs_it = lhs.begin(), rhs_it = rhs.begin();
-    for (unsigned i = 0; i < lhs.size(); i++) {
-      if (*lhs_it != *rhs_it) return false;
-      lhs_it++;
-      rhs_it++;
-    }
-    return true;
+  friend bool operator==(const set &lhs, const set &rhs) noexcept {
+    return lhs.rb == rhs.rb;
   }
 
   friend bool operator!=(

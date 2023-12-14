@@ -87,3 +87,15 @@ TEST(InitialSet2, Subtest_8) {
   ASSERT_EQ(ss.size(), 3);
   ASSERT_EQ(sss.size(), 4);
 }
+
+TEST(InitialSet2, Subtest_9) {
+  s21::set<int> ss = {1, 2, 3, 4};
+  s21::set<int> sss = {1, 2, 3};
+  ASSERT_EQ(ss == sss, 0);
+}
+
+TEST(InitialSet2, Subtest_10) {
+  s21::set<int> ss = {1, 2, 3};
+  s21::set<int> sss = {1, 2, 3};
+  ASSERT_EQ(ss == sss, 1);
+}

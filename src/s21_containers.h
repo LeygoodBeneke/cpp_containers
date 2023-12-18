@@ -5,6 +5,7 @@
 
 #include "containers/array/s21_array.hpp"
 #include "containers/list/s21_list.hpp"
+#include "containers/map/s21_map.h"
 #include "containers/multiset/s21_multiset.h"
 #include "containers/queue/s21_queue.hpp"
 #include "containers/set/s21_set.h"

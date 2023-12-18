@@ -33,9 +33,9 @@ class RedBlackTree {
   using iterator = RedBlackTreeIterator;
   using const_iterator = RedBlackTreeConstIterator;
 
-  RedBlackTree<key_type, mapped_type, Allocator>();
-  RedBlackTree<key_type, mapped_type, Allocator>(const RedBlackTree &rb);
-  RedBlackTree<key_type, mapped_type, Allocator>(RedBlackTree &&rb);
+  RedBlackTree();
+  RedBlackTree(const RedBlackTree &rb);
+  RedBlackTree(RedBlackTree &&rb);
 
   ~RedBlackTree<key_type, mapped_type, Allocator>();
   iterator searchTree(key_type k);
@@ -43,7 +43,10 @@ class RedBlackTree {
   void leftRotate(Node *x);
   void rightRotate(Node *x);
   void insert(const key_type key, const mapped_type value = {});
-  void clear() { deleteNode(root->value); }  // XD
+  void clear() {
+    deleteNode(root->key);
+    _size = 0;
+  }  // XD
   void deleteNode(key_type key) { deleteNodeHelper(this->root, key); }
 
   iterator begin() { return iterator(minimum(root)); }

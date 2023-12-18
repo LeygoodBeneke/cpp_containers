@@ -116,10 +116,10 @@ RedBlackTree<key_type, mapped_type, Allocator>::RedBlackTree(
 template <typename key_type, typename mapped_type, typename Allocator>
 RedBlackTree<key_type, mapped_type, Allocator>::RedBlackTree(
     RedBlackTree &&rb) {
-  root = std::move(rb.root);
-  TNULL = std::move(rb.TNULL);
-  _size = std::move(rb._size);
-  node_alloc = std::move(rb.node_alloc);
+  root = rb.root;
+  TNULL = rb.TNULL;
+  _size = rb._size;
+  node_alloc = rb.node_alloc;
   rb.root = nullptr;
   rb.TNULL = nullptr;
   rb._size = 0;
@@ -128,8 +128,10 @@ RedBlackTree<key_type, mapped_type, Allocator>::RedBlackTree(
 template <typename key_type, typename mapped_type, typename Allocator>
 RedBlackTree<key_type, mapped_type, Allocator>::~RedBlackTree() {
   while (root != TNULL) deleteNode(root->key);
-  node_alloc.destroy(TNULL);
-  node_alloc.deallocate(TNULL, 1);
+  if (TNULL != nullptr) {
+    node_alloc.destroy(TNULL);
+    node_alloc.deallocate(TNULL, 1);
+  }
 }
 
 template <typename key_type, typename mapped_type, typename Allocator>
@@ -442,6 +444,12 @@ RedBlackTree<key_type, mapped_type, Allocator>::operator=(
     const RedBlackTree &other) {
   if (this == &other) return *this;
 
+  while (root != TNULL) deleteNode(root->key);
+  if (TNULL != nullptr) {
+    node_alloc.destroy(TNULL);
+    node_alloc.deallocate(TNULL, 1);
+  }
+
   TNULL = node_alloc.allocate(1);
   node_alloc.construct(TNULL);
   root = TNULL;
@@ -460,8 +468,10 @@ RedBlackTree<key_type, mapped_type, Allocator>::operator=(
   if (this == &other) return *this;
 
   while (root != TNULL) deleteNode(root->key);
-  node_alloc.destroy(TNULL);
-  node_alloc.deallocate(TNULL, 1);
+  if (TNULL != nullptr) {
+    node_alloc.destroy(TNULL);
+    node_alloc.deallocate(TNULL, 1);
+  }
 
   TNULL = std::move(other.TNULL);
   root = std::move(other.root);

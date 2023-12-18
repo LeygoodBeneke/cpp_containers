@@ -36,7 +36,7 @@ class map {
 
   map(const map &m) : rb_tree_(m.rb_tree_) {}
 
-  map(map &&m) { rb_tree_ = m.rb_tree_; }
+  map(map &&m) : rb_tree_(std::move(m.rb_tree_)) {}
 
   map &operator=(map &&m) {
     if (m != *this) swap(m);
@@ -106,15 +106,20 @@ class map {
     return std::pair<iterator, bool>(rb_tree_.getNullNode(), placed);
   }
 
-  void erase(iterator pos) { rb_tree_.deleteNode(*pos); }
+  void erase(iterator pos) { rb_tree_.deleteNode(pos->first); }
 
-  void swap(map &other) { std::swap(rb_tree_, other.rb_tree_); }
+  void swap(map &other) {
+    RedBlackTree new_tree(other.rb_tree_);
+    other.rb_tree_ = rb_tree_;
+    rb_tree_ = new_tree;
+  }
 
   void merge(map &other) {
     if (this == &other) return;
     for (iterator it = other.begin(); it != other.end(); ++it) {
-      insert_or_assign(it.key, it.value);  // нужен доступ к ключу-значению.
-                                           // лучше реализовать в дереве
+      insert_or_assign(
+          it->first, it->second);  // нужен доступ к ключу-значению.
+                                   // лучше реализовать в дереве закостылировал
     }
   }
 
@@ -173,7 +178,9 @@ class map<Key, T>::MapIterator {
 
   T &operator*() noexcept { return (*rb_it)->value; }
   std::pair<Key, T> *operator->() noexcept {
-    return std::pair<Key, T>((*rb_it)->key, (*rb_it)->value);
+    data.first = (*rb_it)->key;
+    data.second = (*rb_it)->value;
+    return &data;
   }
 
   MapIterator &operator++() noexcept {
@@ -209,6 +216,7 @@ class map<Key, T>::MapIterator {
 
  private:
   typename RedBlackTree<Key, T>::iterator rb_it;
+  std::pair<Key, T> data;
 };
 
 template <typename Key, typename T>
@@ -245,6 +253,9 @@ class map<Key, T>::MapConstIterator {
   }
 
   // const_reference operator*() const noexcept { return (*rb_it)->value; }
+  std::pair<Key, T> operator->() noexcept {
+    return {(*rb_it)->key, (*rb_it)->value};
+  }
 
   MapConstIterator &operator++() noexcept {
     rb_it++;

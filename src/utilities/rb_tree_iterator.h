@@ -45,7 +45,7 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
 
   RedBlackTreeIterator operator--(int) noexcept {
     RedBlackTreeIterator it(*this);
-    ptr = prev(*this);
+    ptr = prev(ptr);
     return it;
   }
 

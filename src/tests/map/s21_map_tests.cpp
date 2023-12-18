@@ -16,7 +16,7 @@ TEST(Constructors, Copy) {
   EXPECT_TRUE(m2 == m);
 }
 
-TEST(Constructors, Move) {
+TEST(MapConstructors, Move) {
   s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
   s21::map<std::string, int> m2{{"okay", 100}, {"let's", 200}, {"go", 300}};
   s21::map<std::string, int> m3(std::move(m));
@@ -88,102 +88,59 @@ TEST(Operator, Index) {
   EXPECT_EQ(m["okay"], 100);
   EXPECT_EQ(m["go"], 300);
 }
-//
-// TEST(Methods, Begin) {
+
+TEST(Methods, Begin) {
+  s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
+  EXPECT_EQ(m.begin()->first, "go");
+  EXPECT_EQ(*m.begin(), 300);
+  EXPECT_EQ((++m.begin())->first, "let's");
+  EXPECT_EQ((++m.begin())->second, 200);
+}
+
+// TEST(Methods, End) { <----------------- fix!!
 //   s21::map<std::string, int> m {
 //         {"okay", 100},
 //         {"let's", 200},
 //         {"go", 300}
 //   };
-//   std::map<int, int> hm;
-//   EXPECT_EQ(hm.begin()->first, "okay");
-//
-//   EXPECT_EQ(m.begin(), "okay");
-//   EXPECT_EQ(m.begin()->second, 100);
-//   EXPECT_EQ((++m.begin())->first, "let's");
-//   EXPECT_EQ((++m.begin())->second, 200);
+//   EXPECT_EQ((--m.end())->first, "okay");
+//   EXPECT_EQ((--m.end())->second, 100);
 // }
-//
-// TEST(Methods, End) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   EXPECT_EQ((--m.end())->first, "go");
-//   EXPECT_EQ((--m.end())->second, 300);
-// }
-//
+
 TEST(Methods, Clear) {
   s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
   m.clear();
   EXPECT_EQ(m.empty(), true);
 }
-//
-// TEST(Methods, Erase) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   m.erase(m.begin());
-//   EXPECT_EQ(m.size(), 2);
-//   EXPECT_EQ(*m.begin().first, "let's");
-// }
-//
-// TEST(Methods, Swap) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   s21::map<std::string, int> m2 {
-//         {"meme", 500}
-//   };
-//   m.swap(m2);
-//   EXPECT_EQ(m.size(), 1);
-//   EXPECT_EQ(m2.size(), 3);
-//   EXPECT_EQ(*m.begin().second, 500);
-//   EXPECT_EQ(*m2.begin().second, 100);
-// }
-//
-// TEST(Methods, Swap) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   s21::map<std::string, int> m2 {
-//         {"meme", 500}
-//   };
-//   m.swap(m2);
-//   EXPECT_EQ(m.size(), 1);
-//   EXPECT_EQ(m2.size(), 3);
-//   EXPECT_EQ(*m.begin().second, 500);
-//   EXPECT_EQ(*m2.begin().second, 100);
-// }
-//
-// TEST(Methods, Merge) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   s21::map<std::string, int> m2 {
-//         {"meme", 500}
-//   };
-//   m.merge(m2);
-//   EXPECT_EQ(m.size(), 4);
-//   EXPECT_EQ(m["okay"], 100);
-//   EXPECT_EQ(m["meme"], 500);
-// }
-//
-// TEST(Methods, Contains) {
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   EXPECT_EQ(m.contains("okay"), true);
-//   EXPECT_EQ(m.contains("meme"), false);
-// }
+
+TEST(Methods, Erase) {
+  s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
+  m.erase(m.begin());
+  EXPECT_EQ(m.size(), 2);
+  EXPECT_EQ(m.begin()->first, "let's");
+}
+
+TEST(Methods, Swap) {
+  s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
+  s21::map<std::string, int> m2{{"meme", 500}};
+  m.swap(m2);
+  EXPECT_EQ(m.size(), 1);
+  EXPECT_EQ(m2.size(), 3);
+  EXPECT_EQ(m.begin()->second, 500);
+  EXPECT_EQ(m2.begin()->second, 300);
+}
+
+TEST(Methods, Merge) {
+  s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
+  s21::map<std::string, int> m2{{"meme", 500}};
+  m.merge(m2);
+  EXPECT_EQ(m.size(), 4);
+  EXPECT_EQ(m["okay"], 100);
+  EXPECT_EQ(m["meme"], 500);
+}
+
+TEST(Methods, Contains) {
+  s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
+  EXPECT_EQ(m.contains("okay"), true);
+  EXPECT_EQ(m.contains("meme"), false);
+}

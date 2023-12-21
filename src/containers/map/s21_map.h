@@ -188,7 +188,9 @@ class map<Key, T>::MapIterator {
     return *this;
   }
   MapIterator &operator--() noexcept {
+    std::cout << "Map ++\n";
     rb_it--;
+    std::cout << "Map **\n";
     return *this;
   }
 

@@ -270,9 +270,7 @@ void RedBlackTree<key_type, mapped_type, Allocator>::deleteNodeHelper(
     y->color = z->color;
   }
   _size--;
-  // node_alloc.destroy(z);
   node_alloc.deallocate(z, 1);
-  // delete z;
   if (y_original_color == 0) {
     deleteFix(x);
   }

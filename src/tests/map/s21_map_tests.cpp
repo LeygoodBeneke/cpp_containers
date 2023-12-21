@@ -97,15 +97,11 @@ TEST(Methods, Begin) {
   EXPECT_EQ((++m.begin())->second, 200);
 }
 
-// TEST(Methods, End) { <----------------- fix!!
-//   s21::map<std::string, int> m {
-//         {"okay", 100},
-//         {"let's", 200},
-//         {"go", 300}
-//   };
-//   EXPECT_EQ((--m.end())->first, "okay");
-//   EXPECT_EQ((--m.end())->second, 100);
-// }
+TEST(Methods, End) {  //<----------------- fix!!
+  s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};
+  EXPECT_EQ((--m.end())->first, "okay");
+  EXPECT_EQ((--m.end())->second, 100);
+}
 
 TEST(Methods, Clear) {
   s21::map<std::string, int> m{{"okay", 100}, {"let's", 200}, {"go", 300}};

@@ -8,15 +8,26 @@ template <typename T, typename ValueType, typename Allocator>
 class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
  public:
   RedBlackTreeIterator() noexcept {}
-  RedBlackTreeIterator(const RedBlackTreeIterator &it) noexcept : ptr(it.ptr) {}
+  RedBlackTreeIterator(const RedBlackTreeIterator &it) noexcept
+      : ptr(it.ptr), prev_ptr(it.prev_ptr), next_ptr(it.next_ptr) {}
   RedBlackTreeIterator(RedBlackTreeIterator &&it) noexcept
-      : ptr(std::move(it.ptr)) {}
-  RedBlackTreeIterator(Node &node_ptr) noexcept : ptr(&node_ptr) {}
-  RedBlackTreeIterator(Node *node_ptr) noexcept : ptr(node_ptr) {}
+      : ptr(std::move(it.ptr)),
+        prev_ptr(std::move(it.prev_ptr)),
+        next_ptr(std::move(it.next_ptr)) {}
+  RedBlackTreeIterator(Node &node_ptr) noexcept : ptr(&node_ptr) {
+    prev_ptr = prev(ptr);
+    next_ptr = next(ptr);
+  }
+  RedBlackTreeIterator(Node *node_ptr) noexcept : ptr(node_ptr) {
+    prev_ptr = prev(ptr);
+    next_ptr = next(ptr);
+  }
   ~RedBlackTreeIterator() noexcept {}
 
   RedBlackTreeIterator &operator=(const RedBlackTreeIterator &other) noexcept {
     ptr = other.ptr;
+    prev_ptr = other.prev_ptr;
+    next_ptr = other.next_ptr;
     return *this;
   }
 
@@ -34,23 +45,31 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
 
   RedBlackTreeIterator operator++(int) noexcept {
     RedBlackTreeIterator it(*this);
-    ptr = next(ptr);
+    prev_ptr = ptr;
+    ptr = next_ptr;
+    next_ptr = next(next_ptr);
     return it;
   }
 
   RedBlackTreeIterator &operator++() noexcept {
-    ptr = next(ptr);
+    prev_ptr = ptr;
+    ptr = next_ptr;
+    next_ptr = next(next_ptr);
     return *this;
   }
 
   RedBlackTreeIterator operator--(int) noexcept {
     RedBlackTreeIterator it(*this);
-    ptr = prev(ptr);
+    next_ptr = ptr;
+    ptr = prev_ptr;
+    prev_ptr = prev(prev_ptr);
     return it;
   }
 
   RedBlackTreeIterator &operator--() noexcept {
-    ptr = prev(ptr);
+    next_ptr = ptr;
+    ptr = prev_ptr;
+    prev_ptr = prev(prev_ptr);
     return *this;
   }
 
@@ -66,6 +85,7 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
 
  private:
   Node *next(Node *root) noexcept {
+    if (!root->right) return nullptr;
     if (!root->right->right && !root->right->left) {
       Node *parent = root->parent;
       while (parent) {
@@ -74,7 +94,7 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
         }
         parent = parent->parent;
       }
-      return nullptr;
+      return root->right;
     }
     Node *right = root->right;
     while (right->left->left && right->left->right) right = right->left;
@@ -82,6 +102,7 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
   }
 
   Node *prev(Node *root) noexcept {
+    if (!root->left) return nullptr;
     if (!root->left->right && !root->left->left) {
       Node *parent = root->parent;
       while (parent) {
@@ -90,14 +111,14 @@ class RedBlackTree<T, ValueType, Allocator>::RedBlackTreeIterator {
         }
         parent = parent->parent;
       }
-      return nullptr;
+      return root->left;
     }
     Node *left = root->left;
     while (left->right->left && left->right->right) left = left->right;
     return left;
   }
 
-  Node *ptr;
+  Node *ptr, *prev_ptr, *next_ptr;
 };
 
 #endif

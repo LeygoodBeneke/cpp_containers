@@ -8,8 +8,8 @@
 #include <limits>
 #include <memory>
 
-#include "../../utilities/rb_tree.h"
-#include "../vector/s21_vector.hpp"
+#include "../utilities/rb_tree.h"
+#include "s21_vector.hpp"
 
 namespace s21 {
 template <typename Key, typename T>

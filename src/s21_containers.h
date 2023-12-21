@@ -3,14 +3,14 @@
 
 #include <iterator>
 
-#include "containers/array/s21_array.hpp"
-#include "containers/list/s21_list.hpp"
-#include "containers/map/s21_map.h"
-#include "containers/multiset/s21_multiset.h"
-#include "containers/queue/s21_queue.hpp"
-#include "containers/set/s21_set.h"
-#include "containers/stack/s21_stack.hpp"
-#include "containers/vector/s21_vector.hpp"
+#include "containers/s21_array.hpp"
+#include "containers/s21_list.hpp"
+#include "containers/s21_map.h"
+#include "containers/s21_multiset.h"
+#include "containers/s21_queue.hpp"
+#include "containers/s21_set.h"
+#include "containers/s21_stack.hpp"
+#include "containers/s21_vector.hpp"
 #include "utilities/rb_tree.h"
 
 #endif

@@ -4,7 +4,6 @@
 #include <initializer_list>
 
 #include "../../utilities/rb_tree.h"
-#include "../stack/s21_stack.hpp"
 #include "../vector/s21_vector.hpp"
 
 namespace s21 {
@@ -12,8 +11,8 @@ namespace s21 {
 template <typename Key, typename Compare = std::less<Key>,
           typename Allocator = std::allocator<Key>>
 class multiset {
-  class MultiSetIterator;
-  class MultiSetConstIterator;
+  class MultisetIterator;
+  class MultisetConstIterator;
 
  public:
   using value_type = Key;
@@ -22,8 +21,8 @@ class multiset {
   using const_reference = const value_type &;
   using size_type = std::size_t;
   using allocator = Allocator;
-  using iterator = MultiSetIterator;
-  using const_iterator = MultiSetConstIterator;
+  using iterator = MultisetIterator;
+  using const_iterator = MultisetConstIterator;
 
   multiset() : rb() {}
 
@@ -41,10 +40,10 @@ class multiset {
     return *this;
   }
 
-  iterator begin() { return MultiSetIterator(rb.begin()); }
-  iterator end() { return MultiSetIterator(rb.end()); }
-  const_iterator begin() const { return MultiSetIterator(rb.begin()); }
-  const_iterator end() const { return MultiSetIterator(rb.end()); }
+  iterator begin() { return MultisetIterator(rb.begin()); }
+  iterator end() { return MultisetIterator(rb.end()); }
+  const_iterator begin() const { return MultisetIterator(rb.begin()); }
+  const_iterator end() const { return MultisetIterator(rb.end()); }
 
   constexpr inline bool empty() const noexcept { return rb.empty(); }
   constexpr inline size_type size() const noexcept { return rb.size(); }
@@ -97,17 +96,8 @@ class multiset {
     return rb.searchTree(key) == rb.getNullNode();
   }
 
-  friend bool operator==(
-      const multiset<Key, Compare, Allocator> &lhs,
-      const s21::multiset<Key, Compare, Allocator> &rhs) noexcept {
-    if (lhs.size() != rhs.size()) return false;
-    const_iterator lhs_it = lhs.begin(), rhs_it = rhs.begin();
-    for (unsigned i = 0; i < lhs.size(); i++) {
-      if (*lhs_it != *rhs_it) return false;
-      lhs_it++;
-      rhs_it++;
-    }
-    return true;
+  friend bool operator==(const multiset &lhs, const multiset &rhs) noexcept {
+    return lhs.rb == rhs.rb;
   }
 
   friend bool operator!=(
@@ -126,71 +116,71 @@ class multiset {
 };
 
 template <typename Key, typename Compare, typename Allocator>
-class multiset<Key, Compare, Allocator>::MultiSetIterator {
+class multiset<Key, Compare, Allocator>::MultisetIterator {
  public:
-  MultiSetIterator() noexcept {}
+  MultisetIterator() noexcept {}
 
-  MultiSetIterator(const MultiSetIterator &it) noexcept : rb_it(it.rb_it) {}
-  MultiSetIterator(MultiSetIterator &&it) noexcept
+  MultisetIterator(const MultisetIterator &it) noexcept : rb_it(it.rb_it) {}
+  MultisetIterator(MultisetIterator &&it) noexcept
       : rb_it(std::move(it.rb_it)) {}
 
-  MultiSetIterator(const typename RedBlackTree<Key>::iterator &it) noexcept
+  MultisetIterator(const typename RedBlackTree<Key>::iterator &it) noexcept
       : rb_it(it) {}
-  MultiSetIterator(typename RedBlackTree<Key>::iterator &&it) noexcept
+  MultisetIterator(typename RedBlackTree<Key>::iterator &&it) noexcept
       : rb_it(std::move(it)) {}
-  ~MultiSetIterator() {}
+  ~MultisetIterator() {}
 
-  MultiSetIterator &operator=(const MultiSetIterator &other) {
+  MultisetIterator &operator=(const MultisetIterator &other) {
     if (&other != this) {
       rb_it = other.rb_it;
     }
     return *this;
   }
 
-  friend bool operator==(const MultiSetIterator &lhs,
-                         const MultiSetIterator &rhs) noexcept {
+  friend bool operator==(const MultisetIterator &lhs,
+                         const MultisetIterator &rhs) noexcept {
     return lhs.rb_it == rhs.rb_it;
   }
 
-  friend bool operator!=(const MultiSetIterator &lhs,
-                         const MultiSetIterator &rhs) noexcept {
+  friend bool operator!=(const MultisetIterator &lhs,
+                         const MultisetIterator &rhs) noexcept {
     return lhs.rb_it != rhs.rb_it;
   }
 
   reference operator*() noexcept { return (*rb_it)->value; }
 
-  MultiSetIterator &operator++() noexcept {
+  MultisetIterator &operator++() noexcept {
     rb_it++;
     return *this;
   }
-  MultiSetIterator &operator--() noexcept {
+  MultisetIterator &operator--() noexcept {
     rb_it--;
     return *this;
   }
 
-  MultiSetIterator operator++(int) noexcept {
-    MultiSetIterator tmp(*this);
+  MultisetIterator operator++(int) noexcept {
+    MultisetIterator tmp(*this);
     ++(*this);
     return tmp;
   }
 
-  MultiSetIterator operator--(int) noexcept {
-    MultiSetIterator tmp(*this);
+  MultisetIterator operator--(int) noexcept {
+    MultisetIterator tmp(*this);
     --(*this);
     return tmp;
   }
 
-  MultiSetIterator &operator+=(const size_type n) {
+  MultisetIterator &operator+=(const size_type n) {
     for (size_t i = 0; i < n; i++) ++(*this);
     return *this;
   }
 
-  MultiSetIterator &operator-=(const size_type n) {
+  MultisetIterator &operator-=(const size_type n) {
     for (auto i = 0; i < n; i++) --(*this);
     return *this;
   }
 
-  friend bool operator==(MultiSetIterator &lhs, MultiSetIterator &rhs) {
+  friend bool operator==(MultisetIterator &lhs, MultisetIterator &rhs) {
     return *lhs == *rhs;
   }
 
@@ -199,75 +189,75 @@ class multiset<Key, Compare, Allocator>::MultiSetIterator {
 };
 
 template <typename Key, typename Compare, typename Allocator>
-class multiset<Key, Compare, Allocator>::MultiSetConstIterator {
+class multiset<Key, Compare, Allocator>::MultisetConstIterator {
  public:
-  MultiSetConstIterator() noexcept {}
+  MultisetConstIterator() noexcept {}
 
-  MultiSetConstIterator(const MultiSetConstIterator &it) noexcept
+  MultisetConstIterator(const MultisetConstIterator &it) noexcept
       : rb_it(it.rb_it) {}
-  MultiSetConstIterator(MultiSetConstIterator &&it) noexcept
+  MultisetConstIterator(MultisetConstIterator &&it) noexcept
       : rb_it(std::move(it.rb_it)) {}
 
-  MultiSetConstIterator(
+  MultisetConstIterator(
       const typename RedBlackTree<Key>::const_iterator &it) noexcept
       : rb_it(it) {}
-  MultiSetConstIterator(
+  MultisetConstIterator(
       typename RedBlackTree<Key>::const_iterator &&it) noexcept
       : rb_it(std::move(it)) {}
-  ~MultiSetConstIterator() {}
+  ~MultisetConstIterator() {}
 
-  MultiSetConstIterator &operator=(const MultiSetConstIterator &other) {
+  MultisetConstIterator &operator=(const MultisetConstIterator &other) {
     if (&other != this) {
       rb_it = other.rb_it;
     }
     return *this;
   }
 
-  friend bool operator==(const MultiSetConstIterator &lhs,
-                         const MultiSetConstIterator &rhs) noexcept {
+  friend bool operator==(const MultisetConstIterator &lhs,
+                         const MultisetConstIterator &rhs) noexcept {
     return lhs.rb_it == rhs.rb_it;
   }
 
-  friend bool operator!=(const MultiSetConstIterator &lhs,
-                         const MultiSetConstIterator &rhs) noexcept {
+  friend bool operator!=(const MultisetConstIterator &lhs,
+                         const MultisetConstIterator &rhs) noexcept {
     return lhs.rb_it != rhs.rb_it;
   }
 
   reference operator*() noexcept { return (*rb_it)->value; }
 
-  MultiSetConstIterator &operator++() noexcept {
+  MultisetConstIterator &operator++() noexcept {
     rb_it++;
     return *this;
   }
-  MultiSetConstIterator &operator--() noexcept {
+  MultisetConstIterator &operator--() noexcept {
     rb_it--;
     return *this;
   }
 
-  MultiSetConstIterator operator++(int) noexcept {
-    MultiSetConstIterator tmp(*this);
+  MultisetConstIterator operator++(int) noexcept {
+    MultisetConstIterator tmp(*this);
     ++(*this);
     return tmp;
   }
 
-  MultiSetConstIterator operator--(int) noexcept {
-    MultiSetConstIterator tmp(*this);
+  MultisetConstIterator operator--(int) noexcept {
+    MultisetConstIterator tmp(*this);
     --(*this);
     return tmp;
   }
 
-  MultiSetConstIterator &operator+=(const size_type n) {
+  MultisetConstIterator &operator+=(const size_type n) {
     for (size_t i = 0; i < n; i++) ++(*this);
     return *this;
   }
 
-  MultiSetConstIterator &operator-=(const size_type n) {
+  MultisetConstIterator &operator-=(const size_type n) {
     for (auto i = 0; i < n; i++) --(*this);
     return *this;
   }
 
-  friend bool operator==(MultiSetConstIterator &lhs,
-                         MultiSetConstIterator &rhs) {
+  friend bool operator==(MultisetConstIterator &lhs,
+                         MultisetConstIterator &rhs) {
     return *lhs == *rhs;
   }
 

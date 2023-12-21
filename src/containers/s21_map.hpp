@@ -8,7 +8,7 @@
 #include <limits>
 #include <memory>
 
-#include "../utilities/rb_tree.h"
+#include "../utilities/rb_tree.hpp"
 #include "s21_vector.hpp"
 
 namespace s21 {

@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "../s21_tests.h"
+#include "../s21_tests.hpp"
 
 TEST(PushBackVector, Subtest_1) {
   s21::vector<int> own_vector;

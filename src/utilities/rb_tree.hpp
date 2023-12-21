@@ -483,7 +483,7 @@ RedBlackTree<key_type, mapped_type, Allocator>::operator=(
   return *this;
 }
 
-#include "rb_tree_const_iterator.h"
-#include "rb_tree_iterator.h"
+#include "rb_tree_const_iterator.hpp"
+#include "rb_tree_iterator.hpp"
 
 #endif

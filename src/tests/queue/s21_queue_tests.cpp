@@ -1,4 +1,4 @@
-#include "../s21_tests.h"
+#include "../s21_tests.hpp"
 
 TEST(QueueConstructors, Default) {
   s21::queue<int> q;

@@ -1,4 +1,4 @@
-#include "../s21_tests.h"
+#include "../s21_tests.hpp"
 
 TEST(ListConstructors, Default) {
   s21::list<int> l;

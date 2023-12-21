@@ -1,4 +1,4 @@
-#include "../s21_tests.h"
+#include "../s21_tests.hpp"
 
 TEST(StackConstructors, Default) {
   s21::stack<int> s;

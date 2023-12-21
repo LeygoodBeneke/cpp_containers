@@ -1,4 +1,4 @@
-#include "../s21_tests.h"
+#include "../s21_tests.hpp"
 
 TEST(Constructors, Default) {
   s21::map<std::string, int> m;

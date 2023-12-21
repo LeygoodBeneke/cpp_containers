@@ -1,4 +1,4 @@
-#include "../s21_tests.h"
+#include "../s21_tests.hpp"
 
 TEST(InitialMultiset, Subtest_1) {
   s21::multiset<int> sss;

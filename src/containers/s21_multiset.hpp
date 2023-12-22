@@ -5,7 +5,6 @@
 
 #include "../utilities/rb_tree.hpp"
 #include "s21_vector.hpp"
-#include "s21_stack.hpp"
 
 namespace s21 {
 
@@ -76,30 +75,24 @@ class multiset {
     }
   }
 
-  iterator find(const_reference key) { return rb.searchTree(key); }
+  iterator find(const_reference key) { return iterator(rb.searchTree(key)); }
 
   bool contains(const_reference key) const noexcept {
     return rb.searchTree(key) == rb.getNullNode();
   }
 
   size_type count(const Key &key) {
-    stack<typename RedBlackTree<Key>::Node *> st;
-    st.push(rb.searchTree(key));
+    iterator st(lower_bound(key));
     size_type count = 0;
-    while (st.size()) {
-      typename RedBlackTree<Key>::Node *node = st.top();
-      st.pop();
-      if (node != rb.getNullNode()) {
+    while (*st == key) {
+        st++;
         count++;
-        if (node->left->value == key) st.push(node->left);
-        if (node->right->value == key) st.push(node->right);
-      }
     }
     return count;
   }
 
   std::pair<iterator, iterator> equal_range(const Key &key) {
-    typename RedBlackTree<Key>::Node *node = rb.searchTree(key);
+    iterator node(rb.searchTree(key));
     if (node == rb.getNullNode())
       return std::pair<iterator, iterator>({end(), end()});
     iterator lhs(node), rhs(node), ll, rr;
@@ -115,10 +108,10 @@ class multiset {
   }
 
   iterator lower_bound(const Key &key) {
-    typename RedBlackTree<Key>::Node *node = rb.searchTree(key);
-    if (node == rb.getNullNode())
-      return std::pair<iterator, iterator>({end(), end()});
-    iterator lhs(node), ll;
+    iterator it(rb.searchTree(key));
+    if (it == rb.getNullNode())
+      return end();
+    iterator lhs(it), ll;
     while (*lhs >= key) {
       ll = lhs;
       lhs--;
@@ -127,17 +120,16 @@ class multiset {
   }
 
   iterator upper_bound(const Key &key) {
-    typename RedBlackTree<Key>::Node *node = rb.searchTree(key);
-    if (node == rb.getNullNode())
-      return std::pair<iterator, iterator>({end(), end()});
-    iterator lhs(node), ll;
+    iterator it(rb.searchTree(key));
+    if (it == rb.getNullNode())
+      return end();
+    iterator lhs(it), ll;
     while (*lhs <= key) {
       lhs++;
       ll = lhs;
     }
     return ll;
   }
-
 
   friend bool operator==(const multiset &lhs, const multiset &rhs) noexcept {
     return lhs.rb == rhs.rb;

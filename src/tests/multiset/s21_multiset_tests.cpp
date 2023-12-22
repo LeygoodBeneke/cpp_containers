@@ -100,3 +100,62 @@ TEST(InitialMultiset2, Subtest_10) {
   s21::multiset<int> sss = {1, 2, 3, 3, 3};
   ASSERT_EQ(ss == sss, 0);
 }
+
+TEST(InitialMultiset2, LowerBound) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  const int a = 3;
+  s21::multiset<int>::iterator it1(ss.lower_bound(a));
+  s21::multiset<int>::iterator it(ss.begin());
+  it++;
+  it++;
+
+  ASSERT_EQ(it == it1, 1);
+}
+
+TEST(InitialMultiset2, LowerBound2) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  const int a = 3;
+  s21::multiset<int>::iterator it1(ss.lower_bound(a));
+  s21::multiset<int>::iterator it(ss.begin());
+  it++;
+  ASSERT_EQ(it == it1, 0);
+}
+
+TEST(InitialMultiset2, UpperBound) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  const int a = 3;
+  s21::multiset<int>::iterator it1(ss.upper_bound(a));
+  s21::multiset<int>::iterator it(ss.begin());
+  it += 6;
+  ASSERT_EQ(it == it1, 1);
+}
+
+TEST(InitialMultiset2, UpperBound1) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  const int a = 3;
+  s21::multiset<int>::iterator it1(ss.upper_bound(a));
+  s21::multiset<int>::iterator it(ss.begin());
+  it += 5;
+  ASSERT_EQ(it == it1, 0);
+}
+
+TEST(InitialMultiset2, Count1) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  ASSERT_EQ(ss.count(1), 1);
+}
+
+TEST(InitialMultiset2, Count2) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  ASSERT_EQ(ss.count(3), 4);
+}
+
+TEST(InitialMultiset2, Count3) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  ASSERT_EQ(ss.count(10), 0);
+}
+
+TEST(InitialMultiset2, Erase) {
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3, 4, 5};
+  ss.erase(ss.begin());
+  ASSERT_EQ(ss.size(), 7);
+}

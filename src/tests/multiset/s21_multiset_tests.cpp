@@ -11,15 +11,15 @@ TEST(InitialMultiset, Subtest_1) {
 TEST(InitialMultiset2, Subtest_1) {
   s21::multiset<int> ss;
   std::multiset<int> ssd;
-  std::pair<s21::multiset<int>::iterator, bool> p = ss.insert(1);
+  s21::multiset<int>::iterator p = ss.insert(1);
 
-  std::cout << "-- ITERATOR: " << *p.first << ' ' << p.second << '\n';
+  std::cout << "-- ITERATOR: " << *p << ' ' << *p << '\n';
 }
 
 TEST(InitialMultiset2, Subtest_2) {
   s21::multiset<int> ss;
   std::multiset<int> ssd;
-  std::pair<s21::multiset<int>::iterator, bool> p = ss.insert(25);
+  s21::multiset<int>::iterator p = ss.insert(25);
   ss.insert(30);
 
   ASSERT_EQ(ss.size(), 2);
@@ -96,7 +96,7 @@ TEST(InitialMultiset2, Subtest_9) {
 }
 
 TEST(InitialMultiset2, Subtest_10) {
-  s21::multiset<int> ss = {1, 2, 3};
-  s21::multiset<int> sss = {1, 2, 3};
-  ASSERT_EQ(ss == sss, 1);
+  s21::multiset<int> ss = {1, 2, 3, 3, 3, 3};
+  s21::multiset<int> sss = {1, 2, 3, 3, 3};
+  ASSERT_EQ(ss == sss, 0);
 }

@@ -5,6 +5,7 @@
 
 #include "../utilities/rb_tree.hpp"
 #include "s21_vector.hpp"
+#include "s21_stack.hpp"
 
 namespace s21 {
 
@@ -51,26 +52,11 @@ class multiset {
 
   void clear() noexcept { rb.clear(); }
 
-  std::pair<iterator, bool> insert(const_reference value) {
+  iterator insert(const_reference value) {
     iterator place(rb.searchTree(value));
-    bool placed = false;
-    if (place == rb.getNullNode()) {
-      placed = true;
-    }
     rb.insert(value, value);
     place = iterator(rb.searchTree(value));
-    return std::pair<iterator, bool>(place, placed);
-  }
-
-  std::pair<iterator, bool> insert(value_type &&value) {
-    iterator place(rb.searchTree(std::move(value)));
-    bool placed = false;
-    if (place == rb.getNullNode()) {
-      placed = true;
-    }
-    rb.insert(std::move(value), std::move(value));
-    place = iterator(rb.searchTree(std::move(value)));
-    return std::pair<iterator, bool>(place, placed);
+    return place;
   }
 
   template <typename... Args>
@@ -95,6 +81,63 @@ class multiset {
   bool contains(const_reference key) const noexcept {
     return rb.searchTree(key) == rb.getNullNode();
   }
+
+  size_type count(const Key &key) {
+    stack<typename RedBlackTree<Key>::Node *> st;
+    st.push(rb.searchTree(key));
+    size_type count = 0;
+    while (st.size()) {
+      typename RedBlackTree<Key>::Node *node = st.top();
+      st.pop();
+      if (node != rb.getNullNode()) {
+        count++;
+        if (node->left->value == key) st.push(node->left);
+        if (node->right->value == key) st.push(node->right);
+      }
+    }
+    return count;
+  }
+
+  std::pair<iterator, iterator> equal_range(const Key &key) {
+    typename RedBlackTree<Key>::Node *node = rb.searchTree(key);
+    if (node == rb.getNullNode())
+      return std::pair<iterator, iterator>({end(), end()});
+    iterator lhs(node), rhs(node), ll, rr;
+    while (*lhs == key) {
+      ll = lhs;
+      lhs--;
+    }
+    while (*rhs == key) {
+      rr = rhs;
+      rhs++;
+    }
+    return std::pair<iterator, iterator>({ll, rr});
+  }
+
+  iterator lower_bound(const Key &key) {
+    typename RedBlackTree<Key>::Node *node = rb.searchTree(key);
+    if (node == rb.getNullNode())
+      return std::pair<iterator, iterator>({end(), end()});
+    iterator lhs(node), ll;
+    while (*lhs >= key) {
+      ll = lhs;
+      lhs--;
+    }
+    return ll;
+  }
+
+  iterator upper_bound(const Key &key) {
+    typename RedBlackTree<Key>::Node *node = rb.searchTree(key);
+    if (node == rb.getNullNode())
+      return std::pair<iterator, iterator>({end(), end()});
+    iterator lhs(node), ll;
+    while (*lhs <= key) {
+      lhs++;
+      ll = lhs;
+    }
+    return ll;
+  }
+
 
   friend bool operator==(const multiset &lhs, const multiset &rhs) noexcept {
     return lhs.rb == rhs.rb;

@@ -76,7 +76,7 @@ class set {
   template <typename... Args>
   vector<std::pair<iterator, bool>> insert_many(Args &&...args) {
     vector<std::pair<iterator, bool>> vec;
-    for (const auto &arg : {args...}) vec.push_back(insert(arg, arg));
+    for (const auto &arg : {args...}) vec.push_back({insert(arg), rb.searchTree(arg) == rb.getNullNode()});
     return vec;
   }
 
@@ -90,7 +90,7 @@ class set {
     }
   }
 
-  iterator find(const_reference key) { return rb.searchTree(key); }
+  iterator find(const_reference key) { return iterator(rb.searchTree(key)); }
 
   bool contains(const_reference key) const noexcept {
     return rb.searchTree(key) == rb.getNullNode();

@@ -19,42 +19,42 @@ class vector {
 
   vector();
   vector(unsigned size);
-  vector(vector&& v) noexcept;                      // +
-  vector(const vector& v);                          // +
-  vector(std::initializer_list<value_type> items);  // +
-  ~vector();                                        // +
+  vector(vector&& v) noexcept;                      
+  vector(const vector& v);                          
+  vector(std::initializer_list<value_type> items);  
+  ~vector();                                        
 
-  inline size_type size() const noexcept { return _size; }             // +
-  inline size_type max_size() const { return _allocator.max_size(); }  // +
-  void reserve(size_type size);                                        // +
-  inline size_type capacity() const noexcept { return _capacity; }     // +
-  inline bool empty() const noexcept { return _size == 0; }            // +
-  void clear() noexcept { _size = 0; }                                 // +
+  inline size_type size() const noexcept { return _size; }             
+  inline size_type max_size() const { return _allocator.max_size(); }  
+  void reserve(size_type size);                                        
+  inline size_type capacity() const noexcept { return _capacity; }     
+  inline bool empty() const noexcept { return _size == 0; }            
+  void clear() noexcept { _size = 0; }                                 
 
-  inline reference back();              // +
-  inline const_reference back() const;  // +
+  inline reference back();              
+  inline const_reference back() const;  
 
-  inline reference front();              // +
-  inline const_reference front() const;  // +
+  inline reference front();              
+  inline const_reference front() const;  
 
-  void push_back(const_reference value);  // +
-  void push_back(T&& value);              // +
-  void pop_back();                        // +
-  void swap(vector& other) noexcept;      // +
+  void push_back(const_reference value);  
+  void push_back(T&& value);              
+  void pop_back();                        
+  void swap(vector& other) noexcept;      
   iterator insert(iterator pos, const_reference value);
   void erase(iterator pos);
 
-  inline iterator begin() const noexcept { return _data; }        // +
-  inline iterator end() const noexcept { return _data + _size; }  // +
-  inline T* data() const noexcept { return _data; };              // +
+  inline iterator begin() const noexcept { return _data; }        
+  inline iterator end() const noexcept { return _data + _size; }  
+  inline T* data() const noexcept { return _data; };              
 
-  void shrink_to_fit() noexcept;  // +
+  void shrink_to_fit() noexcept;
 
-  value_type operator[](size_type i) const;                    // +
-  reference operator[](size_type i);                           // +
-  vector& operator=(vector&& v) noexcept;                      // +
-  vector& operator=(const vector& v);                          // +
-  vector& operator=(std::initializer_list<value_type> ilist);  // +
+  value_type operator[](size_type i) const;                    
+  reference operator[](size_type i);                           
+  vector& operator=(vector&& v) noexcept;                      
+  vector& operator=(const vector& v);                          
+  vector& operator=(std::initializer_list<value_type> ilist);  
   
   template<typename... Args>
   iterator insert_many(const_iterator pos, Args&&... args) {

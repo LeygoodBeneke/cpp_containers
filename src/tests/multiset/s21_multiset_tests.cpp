@@ -159,3 +159,21 @@ TEST(InitialMultiset2, Erase) {
   ss.erase(ss.begin());
   ASSERT_EQ(ss.size(), 7);
 }
+
+TEST(InitialMultiset2, Find) {
+  s21::multiset<int> ss = {1, 2, 3, 4, 5};
+  s21::multiset<int>::iterator it1(ss.find(1));
+  ASSERT_EQ(it1 == ss.begin(), 1);
+}
+
+TEST(InitialMultiset2, Find1) {
+  s21::multiset<int> ss = {1, 2, 3, 4, 5};
+  s21::multiset<int>::iterator it1(ss.find(6));
+  ASSERT_EQ(it1 == ss.end(), 1);
+}
+
+TEST(InitialMultiset2, InsertMany) {
+  s21::multiset<int> ss;
+  ss.insert_many(1, 2, 3, 4);
+  ASSERT_EQ(ss.size(), 4);
+}

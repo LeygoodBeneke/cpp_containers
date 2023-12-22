@@ -61,7 +61,7 @@ class multiset {
   template <typename... Args>
   vector<std::pair<iterator, bool>> insert_many(Args &&...args) {
     vector<std::pair<iterator, bool>> vec;
-    for (const auto &arg : {args...}) vec.push_back(insert(arg, arg));
+    for (const auto &arg : {args...}) vec.push_back({insert(arg), rb.searchTree(arg) == rb.getNullNode()});
     return vec;
   }
 

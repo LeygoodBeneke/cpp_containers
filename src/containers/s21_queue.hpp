@@ -1,6 +1,8 @@
 #ifndef S21_QUEUE_HPP
 #define S21_QUEUE_HPP
 
+#include <iostream>
+
 #include "s21_list.hpp"
 
 namespace s21 {

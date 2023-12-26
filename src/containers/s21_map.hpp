@@ -1,11 +1,7 @@
-#ifndef S21_map_HPP
-#define S21_map_HPP
+#ifndef S21_MAP_HPP
+#define S21_MAP_HPP
 
-#include <cstddef>
 #include <initializer_list>
-#include <iostream>
-#include <iterator>
-#include <limits>
 #include <memory>
 
 #include "../utilities/rb_tree.hpp"
@@ -106,6 +102,7 @@ class map {
     return std::pair<iterator, bool>(rb_tree_.getNullNode(), placed);
   }
 
+  void erase(iterator &pos) { rb_tree_.deleteNode(pos->first); }
   void erase(iterator pos) { rb_tree_.deleteNode(pos->first); }
 
   void swap(map &other) {
@@ -117,9 +114,7 @@ class map {
   void merge(map &other) {
     if (this == &other) return;
     for (iterator it = other.begin(); it != other.end(); ++it) {
-      insert_or_assign(
-          it->first, it->second);  // нужен доступ к ключу-значению.
-                                   // лучше реализовать в дереве закостылировал
+      insert_or_assign(it->first, it->second);
     }
   }
 
@@ -137,6 +132,10 @@ class map {
   /*** NON MEMBER ***/
   friend bool operator==(const map &lhs, const map &rhs) {
     return lhs.rb_tree_ == rhs.rb_tree_;
+  }
+
+  friend bool operator!=(const map &lhs, const map &rhs) {
+    return !(lhs == rhs);
   }
 
  private:

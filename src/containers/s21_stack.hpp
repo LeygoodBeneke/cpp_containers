@@ -1,6 +1,8 @@
 #ifndef S21_STACK_HPP
 #define S21_STACK_HPP
 
+#include <iostream>
+
 #include "s21_list.hpp"
 
 namespace s21 {

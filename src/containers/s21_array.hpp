@@ -1,12 +1,8 @@
 #ifndef S21_ARRAY_HPP
 #define S21_ARRAY_HPP
 
-#include <cstddef>
 #include <initializer_list>
-#include <iostream>
 #include <iterator>
-#include <limits>
-#include <memory>
 
 namespace s21 {
 template <typename T, std::size_t N>

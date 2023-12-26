@@ -76,11 +76,13 @@ class set {
   template <typename... Args>
   vector<std::pair<iterator, bool>> insert_many(Args &&...args) {
     vector<std::pair<iterator, bool>> vec;
-    for (const auto &arg : {args...}) vec.push_back({insert(arg), rb.searchTree(arg) == rb.getNullNode()});
+    for (const auto &arg : {args...})
+      vec.push_back({insert(arg), rb.searchTree(arg) == rb.getNullNode()});
     return vec;
   }
 
   void erase(iterator pos) { rb.deleteNode(*pos); }
+  void erase(iterator &pos) { rb.deleteNode(*pos); }
 
   void swap(set &other) noexcept { std::swap(rb, other.rb); }
 
@@ -90,7 +92,9 @@ class set {
     }
   }
 
-  iterator find(const_reference key) { return iterator(rb.searchTree(key)); }
+  iterator find(const_reference key) const {
+    return iterator(rb.searchTree(key));
+  }
 
   bool contains(const_reference key) const noexcept {
     return rb.searchTree(key) == rb.getNullNode();
@@ -100,15 +104,8 @@ class set {
     return lhs.rb == rhs.rb;
   }
 
-  friend bool operator!=(
-      const set<Key, Compare, Allocator> &lhs,
-      const s21::set<Key, Compare, Allocator> &rhs) noexcept {
+  friend bool operator!=(const set &lhs, const set &rhs) noexcept {
     return !(lhs == rhs);
-  }
-
-  friend bool operator==(const std::pair<Key, Key> &lhs,
-                         const std::pair<Key, Key> &rhs) {
-    return lhs.first == rhs.first && lhs.second == rhs.second;
   }
 
  private:

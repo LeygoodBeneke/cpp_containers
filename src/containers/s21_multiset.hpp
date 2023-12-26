@@ -61,10 +61,12 @@ class multiset {
   template <typename... Args>
   vector<std::pair<iterator, bool>> insert_many(Args &&...args) {
     vector<std::pair<iterator, bool>> vec;
-    for (const auto &arg : {args...}) vec.push_back({insert(arg), rb.searchTree(arg) == rb.getNullNode()});
+    for (const auto &arg : {args...})
+      vec.push_back({insert(arg), rb.searchTree(arg) == rb.getNullNode()});
     return vec;
   }
 
+  void erase(iterator &pos) { rb.deleteNode(*pos); }
   void erase(iterator pos) { rb.deleteNode(*pos); }
 
   void swap(multiset &other) noexcept { std::swap(rb, other.rb); }
@@ -85,8 +87,8 @@ class multiset {
     iterator st(lower_bound(key));
     size_type count = 0;
     while (*st == key) {
-        st++;
-        count++;
+      st++;
+      count++;
     }
     return count;
   }
@@ -109,8 +111,7 @@ class multiset {
 
   iterator lower_bound(const Key &key) {
     iterator it(rb.searchTree(key));
-    if (it == rb.getNullNode())
-      return end();
+    if (it == rb.getNullNode()) return end();
     iterator lhs(it), ll;
     while (*lhs >= key) {
       ll = lhs;
@@ -121,8 +122,7 @@ class multiset {
 
   iterator upper_bound(const Key &key) {
     iterator it(rb.searchTree(key));
-    if (it == rb.getNullNode())
-      return end();
+    if (it == rb.getNullNode()) return end();
     iterator lhs(it), ll;
     while (*lhs <= key) {
       lhs++;
@@ -135,15 +135,8 @@ class multiset {
     return lhs.rb == rhs.rb;
   }
 
-  friend bool operator!=(
-      const multiset<Key, Compare, Allocator> &lhs,
-      const s21::multiset<Key, Compare, Allocator> &rhs) noexcept {
+  friend bool operator!=(const multiset &lhs, const multiset &rhs) noexcept {
     return !(lhs == rhs);
-  }
-
-  friend bool operator==(const std::pair<Key, Key> &lhs,
-                         const std::pair<Key, Key> &rhs) {
-    return lhs.first == rhs.first && lhs.second == rhs.second;
   }
 
  private:
